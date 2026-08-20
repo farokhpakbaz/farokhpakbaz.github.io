@@ -12,12 +12,33 @@ hugo server -D
 
 Open `http://localhost:1313`.
 
+## Write a new post
+
+Create a Markdown file with Hugo:
+
+```sh
+hugo new content notes/my-new-post.md
+```
+
+Then edit `content/notes/my-new-post.md`. Update its title and description,
+write the article below the front matter, and change `draft: true` to
+`draft: false` when it is ready to publish.
+
+Preview drafts locally with:
+
+```sh
+hugo server -D
+```
+
+Commit and push the Markdown file to `main`. GitHub Actions builds the HTML and
+publishes it automatically; generated HTML should not be edited or committed.
+
 ## Customize
 
 - Identity, location, status, and links: `hugo.toml`
 - Homepage sections: `layouts/index.html`
 - About page: `content/about/index.md`
-- Notes: `content/notes/`
+- Blog posts: `content/notes/*.md`
 - Visual design: `assets/css/main.css`
 
 Create a production build with `hugo --minify`. The generated site is written to `public/`.

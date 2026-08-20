@@ -1,7 +1,15 @@
-<aside class="focus-player" id="focus-player" data-player hidden aria-label="musicForProgramming focus player">
+<aside
+  class="focus-player"
+  id="focus-player"
+  data-player
+  hidden
+  aria-label="musicForProgramming focus player"
+>
   <div class="player-titlebar">
     <p><span>musicForProgramming</span>(<q>focus</q>);</p>
-    <button type="button" data-player-close aria-label="Collapse player">×</button>
+    <button type="button" data-player-close aria-label="Collapse player">
+      ×
+    </button>
   </div>
 
   <div class="player-display">
@@ -28,24 +36,54 @@
   </label>
 
   <div class="player-controls">
-    <button type="button" data-player-prev aria-label="Previous episode">|←</button>
-    <button class="play-button" type="button" data-player-play aria-label="Play">
+    <button type="button" data-player-prev aria-label="Previous episode">
+      |←
+    </button>
+    <button
+      class="play-button"
+      type="button"
+      data-player-play
+      aria-label="Play"
+    >
       <span data-play-icon aria-hidden="true">PLAY</span>
     </button>
     <button type="button" data-player-next aria-label="Next episode">→|</button>
-    <button type="button" data-player-rewind aria-label="Rewind 30 seconds">−30</button>
-    <button type="button" data-player-forward aria-label="Forward 30 seconds">+30</button>
+    <button type="button" data-player-rewind aria-label="Rewind 30 seconds">
+      −30
+    </button>
+    <button type="button" data-player-forward aria-label="Forward 30 seconds">
+      +30
+    </button>
   </div>
 
   <div class="player-timeline">
     <span data-current-time>00:00</span>
-    <input type="range" data-player-progress min="0" max="1000" value="0" aria-label="Playback position">
+    <input
+      type="range"
+      data-player-progress
+      min="0"
+      max="1000"
+      value="0"
+      aria-label="Playback position"
+    />
     <span data-duration>1:30:00</span>
   </div>
 
   <div class="player-footer">
-    <label><span>vol</span><input type="range" data-player-volume min="0" max="1" step="0.05" value="0.8" aria-label="Volume"></label>
-    <a href="https://musicforprogramming.net" target="_blank" rel="noopener">source: musicforprogramming.net ↗</a>
+    <label
+      ><span>vol</span
+      ><input
+        type="range"
+        data-player-volume
+        min="0"
+        max="1"
+        step="0.05"
+        value="0.8"
+        aria-label="Volume"
+    /></label>
+    <a href="https://musicforprogramming.net" target="_blank" rel="noopener"
+      >source: musicforprogramming.net ↗</a
+    >
   </div>
 
   <audio data-player-audio preload="metadata"></audio>

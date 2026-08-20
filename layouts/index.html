@@ -1,0 +1,114 @@
+{{ define "main" }}
+<section class="hero" aria-labelledby="intro-title">
+  <div class="eyebrow"><span class="status-dot" aria-hidden="true"></span>{{ site.Params.status }}</div>
+  <div class="hero-grid">
+    <div class="hero-copy">
+      <p class="code-comment">// hello, I’m</p>
+      <h1 id="intro-title">{{ site.Params.displayName }}<span class="cursor" aria-hidden="true"></span></h1>
+      <p class="hero-name">{{ site.Params.name }}</p>
+      <p class="lede">I build <em>reliable platforms</em>, automate infrastructure, and help complex systems stay observable.</p>
+    </div>
+    <div class="identity-card" aria-label="Profile details">
+      <div class="line"><span class="line-number">01</span><span><b>const</b> person <i>=</i> {</span></div>
+      <div class="line"><span class="line-number">02</span><span class="indent">role: <q>{{ site.Params.role }}</q>,</span></div>
+      <div class="line"><span class="line-number">03</span><span class="indent">basedIn: <q>{{ site.Params.location }}</q>,</span></div>
+      <div class="line"><span class="line-number">04</span><span class="indent">team: <q>{{ site.Params.company }}</q>,</span></div>
+      <div class="line"><span class="line-number">05</span><span class="indent">focus: [</span></div>
+      <div class="line"><span class="line-number">06</span><span class="indent-2"><q>reliability</q>, <q>automation</q></span></div>
+      <div class="line"><span class="line-number">07</span><span class="indent">]</span></div>
+      <div class="line"><span class="line-number">08</span><span>};</span></div>
+    </div>
+  </div>
+  <div class="hero-meta">
+    <span>LOCAL TIME <strong data-local-time>--:--:--</strong> {{ site.Params.timezoneLabel }}</span>
+    <span class="scroll-cue">scroll to explore <i aria-hidden="true">↓</i></span>
+  </div>
+</section>
+
+<section class="section work" id="work" aria-labelledby="work-title">
+  <div class="section-heading">
+    <p class="section-index">01 / selected work</p>
+    <h2 id="work-title">Systems in motion<span class="punctuation">.</span></h2>
+    <p>Infrastructure work, operational tooling, and experiments aimed at making production systems safer to run.</p>
+  </div>
+
+  <div class="project-list">
+    <a class="project-row" href="https://www.linkedin.com/pulse/interactive-bash-script-safe-custom-kubernetes-node-mehdi-frzzf" target="_blank" rel="noopener">
+      <span class="project-number">01</span>
+      <span class="project-main">
+        <strong>Safe Kubernetes node upgrades</strong>
+        <small>An interactive Bash utility for controlled upgrades across worker and control-plane nodes.</small>
+      </span>
+      <span class="project-tags"><span>Kubernetes</span><span>Bash</span><span>containerd</span></span>
+      <span class="project-arrow" aria-hidden="true">↗</span>
+    </a>
+    <div class="project-row">
+      <span class="project-number">02</span>
+      <span class="project-main">
+        <strong>Platform & infrastructure engineering</strong>
+        <small>DevOps experience across Irancell Labs, Asiatech, and Atieh Dadeh Pardaz.</small>
+      </span>
+      <span class="project-tags"><span>Linux</span><span>Terraform</span><span>Jenkins</span></span>
+      <span class="project-arrow" aria-hidden="true">+</span>
+    </div>
+    <a class="project-row" href="{{ site.Params.github }}" target="_blank" rel="noopener">
+      <span class="project-number">03</span>
+      <span class="project-main">
+        <strong>Open-source archive</strong>
+        <small>Operational tools, infrastructure experiments, and code shared in public.</small>
+      </span>
+      <span class="project-tags"><span>Code</span><span>Automation</span></span>
+      <span class="project-arrow" aria-hidden="true">↗</span>
+    </a>
+  </div>
+</section>
+
+<section class="section about" id="about" aria-labelledby="about-title">
+  <div class="section-heading">
+    <p class="section-index">02 / about</p>
+    <h2 id="about-title">Behind the screen<span class="punctuation">.</span></h2>
+  </div>
+  <div class="about-grid">
+    <div class="about-copy">
+      <p>I’m a DevOps engineer based in Tehran, working on the infrastructure and automation that keep software dependable in production.</p>
+      <p>My background spans platform engineering, Linux systems administration, and solution architecture. I’m most at home making complex operations repeatable, observable, and safer for the people running them.</p>
+      <a class="text-link" href="{{ "about/" | relURL }}">read the longer version <span aria-hidden="true">→</span></a>
+    </div>
+    <dl class="facts">
+      <div><dt>Focus</dt><dd>DevOps / platforms / cloud infrastructure</dd></div>
+      <div><dt>Core</dt><dd>Linux / Kubernetes / Terraform / Helm</dd></div>
+      <div><dt>Observe</dt><dd>Prometheus / Elasticsearch</dd></div>
+      <div><dt>Based</dt><dd>{{ site.Params.location }}</dd></div>
+      <div><dt>Languages</dt><dd>Persian / English</dd></div>
+    </dl>
+  </div>
+</section>
+
+<section class="section latest" aria-labelledby="notes-title">
+  <div class="section-heading section-heading--row">
+    <div>
+      <p class="section-index">03 / field notes</p>
+      <h2 id="notes-title">From the notebook<span class="punctuation">.</span></h2>
+    </div>
+    <a class="text-link" href="{{ "notes/" | relURL }}">all notes →</a>
+  </div>
+  <div class="note-grid">
+    {{ range first 3 (where site.RegularPages "Section" "notes") }}
+    <article class="note-card">
+      <a href="{{ .RelPermalink }}">
+        <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "02 Jan 2006" }}</time>
+        <h3>{{ .Title }}</h3>
+        <p>{{ .Description }}</p>
+        <span class="read-more">read note <i aria-hidden="true">→</i></span>
+      </a>
+    </article>
+    {{ end }}
+  </div>
+</section>
+
+<section class="contact" aria-labelledby="contact-title">
+  <p class="code-comment">// infrastructure should be boring — in the best way</p>
+  <h2 id="contact-title">Let’s build systems<br><em>that hold up.</em></h2>
+  <a class="contact-link" href="{{ site.Params.linkedin }}" target="_blank" rel="noopener">connect on LinkedIn <span aria-hidden="true">↗</span></a>
+</section>
+{{ end }}

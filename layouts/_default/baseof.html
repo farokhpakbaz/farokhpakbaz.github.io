@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="{{ site.Language.Locale }}" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a0c0b">
+  <meta name="description" content="{{ with .Description }}{{ . }}{{ else }}{{ site.Params.description }}{{ end }}">
+  <meta property="og:title" content="{{ if .IsHome }}{{ site.Title }}{{ else }}{{ .Title }} — {{ site.Params.name }}{{ end }}">
+  <meta property="og:description" content="{{ with .Description }}{{ . }}{{ else }}{{ site.Params.description }}{{ end }}">
+  <meta property="og:type" content="{{ if .IsPage }}article{{ else }}website{{ end }}">
+  <meta property="og:url" content="{{ .Permalink }}">
+  <title>{{ if .IsHome }}{{ site.Title }}{{ else }}{{ .Title }} — {{ site.Params.name }}{{ end }}</title>
+  <link rel="icon" href="{{ "favicon.svg" | relURL }}" type="image/svg+xml">
+  {{ $styles := resources.Get "css/main.css" | minify | fingerprint }}
+  <link rel="stylesheet" href="{{ $styles.RelPermalink }}" integrity="{{ $styles.Data.Integrity }}">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="site-shell">
+    <header class="site-header" aria-label="Primary navigation">
+      <a class="wordmark" href="{{ site.Home.RelPermalink }}" aria-label="{{ site.Params.name }}, home">
+        <span aria-hidden="true">{{ "<" }}</span>{{ site.Params.handle }}<span aria-hidden="true"> /&gt;</span>
+      </a>
+      <nav class="nav-links" aria-label="Main menu">
+        <a href="{{ site.Home.RelPermalink }}#work">work</a>
+        <a href="{{ site.Home.RelPermalink }}#about">about</a>
+        <a href="{{ "notes/" | relURL }}">notes</a>
+      </nav>
+      <div class="header-actions">
+        <button class="focus-toggle" type="button" data-player-toggle aria-controls="focus-player" aria-expanded="false">
+          <span class="mini-eq" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span>focus radio</span>
+        </button>
+        <button class="theme-toggle" type="button" aria-label="Switch color theme" title="Switch color theme">
+          <span class="theme-icon" aria-hidden="true">◐</span>
+          <span class="theme-label">theme</span>
+        </button>
+      </div>
+    </header>
+
+    <main id="main">
+      {{ block "main" . }}{{ end }}
+    </main>
+
+    {{ partial "footer.html" . }}
+  </div>
+  {{ partial "player.html" . }}
+  {{ $script := resources.Get "js/main.js" | minify | fingerprint }}
+  <script src="{{ $script.RelPermalink }}" integrity="{{ $script.Data.Integrity }}" defer></script>
+</body>
+</html>

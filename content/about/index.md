@@ -25,4 +25,4 @@ One example is my interactive Bash utility for [safer Kubernetes node upgrades](
 
 ## Elsewhere
 
-You can find my professional profile and writing on [LinkedIn](https://www.linkedin.com/in/mehdi-hasanzadeh-samadi-4188bb38), or see code and experiments on [GitHub](https://github.com/kratos47mhs).
+You can find my professional profile and writing on [LinkedIn](https://www.linkedin.com/in/mehdi-hasanzadeh-samadi-4188bb38), or see code and experiments on [GitHub](https://github.com/farokhpakbaz).

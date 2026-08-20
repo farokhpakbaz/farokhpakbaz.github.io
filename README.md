@@ -24,6 +24,6 @@ Create a production build with `hugo --minify`. The generated site is written to
 
 ## Deploy
 
-The included GitHub Actions workflow builds and publishes the site after every push to `main`. In the repository settings, choose **GitHub Actions** as the Pages source once; subsequent pushes deploy automatically.
+The included GitHub Actions workflow builds and publishes the site after every push to `master`. In the repository settings, choose **GitHub Actions** as the Pages source once; subsequent pushes deploy automatically.
 
-Published at `https://kratos47mhs.github.io/`.
+Published at `https://farokhpakbaz.github.io/`.

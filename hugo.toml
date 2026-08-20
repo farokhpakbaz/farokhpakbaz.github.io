@@ -1,6 +1,6 @@
 baseURL = "https://farokhpakbaz.github.io/"
 locale = "en-us"
-title = "Mehdi Farokh — DevOps Engineer"
+title = "Farokh — DevOps Engineer"
 enableRobotsTXT = true
 disableKinds = ["taxonomy", "term"]
 

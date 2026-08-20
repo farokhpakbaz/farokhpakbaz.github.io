@@ -41,10 +41,20 @@ publishes it automatically; generated HTML should not be edited or committed.
 - Blog posts: `content/notes/*.md`
 - Visual design: `assets/css/main.css`
 
-Create a production build with `hugo --minify`. The generated site is written to `public/`.
+Create a production build with `hugo --gc --minify --cleanDestinationDir`. The
+generated site is written to `public/`.
 
 ## Deploy
 
-The included GitHub Actions workflow builds and publishes the site after every push to `main`. In the repository settings, choose **GitHub Actions** as the Pages source once; subsequent pushes deploy automatically.
+The included GitHub Actions workflow builds and publishes the site after every
+push to `main`.
+
+Before the first deployment, open **Settings → Pages → Build and deployment**
+and set **Source** to **GitHub Actions**. This setting is required: if the source
+is left as **Deploy from a branch**, GitHub runs Jekyll against the repository
+root and publishes this README instead of the Hugo build.
+
+After changing the source, run the workflow manually or push a commit to
+`main`. Subsequent pushes deploy automatically.
 
 Published at `https://farokhpakbaz.github.io/`.

@@ -1,0 +1,46 @@
+{{- $episodes := hugo.Data.focus_episodes -}}
+{{- $feedURL := "https://musicforprogramming.net/rss.xml" -}}
+
+{{- with try (resources.GetRemote $feedURL) -}}
+  {{- with .Err -}}
+    {{- warnf "Unable to refresh focus-player episodes from %s; using local fallback: %s" $feedURL . -}}
+  {{- else with .Value -}}
+    {{- $feed := transform.Unmarshal (dict "format" "xml") .Content -}}
+    {{- $remoteEpisodes := slice -}}
+
+    {{- with $feed.channel.item -}}
+      {{- range first 8 . -}}
+        {{- $title := .title | default "" -}}
+        {{- $page := replace (.link | default "") "http://" "https://" -}}
+        {{- $url := "" -}}
+        {{- with .enclosure -}}
+          {{- $url = index . "-url" | default "" -}}
+        {{- end -}}
+
+        {{- $duration := 0 -}}
+        {{- with .duration -}}
+          {{- range split (printf "%v" .) ":" -}}
+            {{- $duration = add (mul $duration 60) (int .) -}}
+          {{- end -}}
+        {{- end -}}
+
+        {{- if and $title $url (gt $duration 0) -}}
+          {{- $remoteEpisodes = $remoteEpisodes | append (dict
+            "title" $title
+            "duration" $duration
+            "url" $url
+            "page" $page
+          ) -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+
+    {{- if $remoteEpisodes -}}
+      {{- $episodes = $remoteEpisodes -}}
+    {{- else -}}
+      {{- warnf "The focus-player feed at %s contained no usable episodes; using local fallback" $feedURL -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{- return $episodes -}}

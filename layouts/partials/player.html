@@ -1,3 +1,4 @@
+{{- $episodes := partialCached "focus-episodes.html" . "focus-episodes-v1" -}}
 <aside
   class="focus-player"
   id="focus-player"
@@ -17,21 +18,16 @@
       {{ range seq 28 }}<i></i>{{ end }}
     </div>
     <p class="player-kicker">NOW STREAMING</p>
-    <p class="player-title" data-player-title>Episode 78: Datassette</p>
+    <p class="player-title" data-player-title>{{ (index $episodes 0).title }}</p>
     <p class="player-status" data-player-status>ready when you are</p>
   </div>
 
   <label class="episode-picker">
     <span>episode</span>
     <select data-episode-select aria-label="Choose an episode">
-      <option value="0">78 · Datassette</option>
-      <option value="1">77 · Phonaut</option>
-      <option value="2">76 · Material Object</option>
-      <option value="3">75 · Datassette</option>
-      <option value="4">74 · NCW</option>
-      <option value="5">73 · [in]anace</option>
-      <option value="6">72 · Freddy Cyclone</option>
-      <option value="7">71 · Neon Genesis</option>
+      {{- range $index, $episode := $episodes }}
+      <option value="{{ $index }}">{{ replaceRE `^Episode\s+([0-9]+):\s*` "$1 · " $episode.title }}</option>
+      {{- end }}
     </select>
   </label>
 
@@ -66,7 +62,7 @@
       value="0"
       aria-label="Playback position"
     />
-    <span data-duration>1:30:00</span>
+    <span data-duration>--:--</span>
   </div>
 
   <div class="player-footer">
@@ -88,3 +84,6 @@
 
   <audio data-player-audio preload="metadata"></audio>
 </aside>
+<script type="application/json" data-player-episodes>
+  {{- $episodes | jsonify | safeJS -}}
+</script>

@@ -3,6 +3,9 @@ name: Build and deploy Hugo site
 on:
   push:
     branches: [main]
+  schedule:
+    # Refresh the remote music feed daily at 04:17 UTC.
+    - cron: "17 4 * * *"
   workflow_dispatch:
 
 permissions:

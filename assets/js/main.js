@@ -42,62 +42,33 @@
     window.setInterval(updateTime, 1000);
   }
 
-  const episodes = [
-    {
-      title: "Episode 78: Datassette",
-      duration: 5400,
-      url: "https://datashat.net/music_for_programming_78-datassette.mp3",
-      page: "https://musicforprogramming.net/seventyeight",
-    },
-    {
-      title: "Episode 77: Phonaut",
-      duration: 7200,
-      url: "https://datashat.net/music_for_programming_77-phonaut.mp3",
-      page: "https://musicforprogramming.net/seventyseven",
-    },
-    {
-      title: "Episode 76: Material Object",
-      duration: 8042,
-      url: "https://datashat.net/music_for_programming_76-material_object.mp3",
-      page: "https://musicforprogramming.net/seventysix",
-    },
-    {
-      title: "Episode 75: Datassette",
-      duration: 5573,
-      url: "https://datashat.net/music_for_programming_75-datassette.mp3",
-      page: "https://musicforprogramming.net/seventyfive",
-    },
-    {
-      title: "Episode 74: NCW",
-      duration: 12006,
-      url: "https://datashat.net/music_for_programming_74-ncw.mp3",
-      page: "https://musicforprogramming.net/seventyfour",
-    },
-    {
-      title: "Episode 73: [in]anace",
-      duration: 6659,
-      url: "https://datashat.net/music_for_programming_73-inanace.mp3",
-      page: "https://musicforprogramming.net/seventythree",
-    },
-    {
-      title: "Episode 72: Freddy Cyclone",
-      duration: 3922,
-      url: "https://datashat.net/music_for_programming_72-freddy_cyclone.mp3",
-      page: "https://musicforprogramming.net/seventytwo",
-    },
-    {
-      title: "Episode 71: Neon Genesis",
-      duration: 3800,
-      url: "https://datashat.net/music_for_programming_71-neon_genesis.mp3",
-      page: "https://musicforprogramming.net/seventyone",
-    },
-  ];
+  const episodesNode = document.querySelector("[data-player-episodes]");
+  let episodes = [];
+
+  try {
+    const parsedEpisodes = JSON.parse(episodesNode?.textContent || "[]");
+    if (Array.isArray(parsedEpisodes)) {
+      episodes = parsedEpisodes
+        .filter(
+          (episode) =>
+            typeof episode.title === "string" &&
+            typeof episode.url === "string" &&
+            Number.isFinite(Number(episode.duration)),
+        )
+        .map((episode) => ({
+          ...episode,
+          duration: Number(episode.duration),
+        }));
+    }
+  } catch {
+    // Hugo supplies a local fallback, so this only guards malformed markup.
+  }
 
   const player = document.querySelector("[data-player]");
   const audio = player?.querySelector("[data-player-audio]");
   const playerToggle = document.querySelector("[data-player-toggle]");
 
-  if (player && audio && playerToggle) {
+  if (player && audio && playerToggle && episodes.length) {
     const titleNode = player.querySelector("[data-player-title]");
     const statusNode = player.querySelector("[data-player-status]");
     const playIcon = player.querySelector("[data-play-icon]");

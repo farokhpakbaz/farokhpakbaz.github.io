@@ -16,6 +16,16 @@
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
+  <div class="matrix-layer" data-matrix-layer hidden aria-hidden="true">
+    <iframe
+      data-matrix-frame
+      title=""
+      tabindex="-1"
+      loading="lazy"
+      sandbox="allow-scripts allow-same-origin"
+    ></iframe>
+    <div class="matrix-vignette" aria-hidden="true"></div>
+  </div>
   <div class="site-shell">
     <header class="site-header" aria-label="Primary navigation">
       <a class="wordmark" href="{{ site.Home.RelPermalink }}" aria-label="{{ site.Params.name }}, home">
@@ -28,6 +38,17 @@
         <a href="{{ "notes/" | relURL }}">notes</a>
       </nav>
       <div class="header-actions">
+        <button
+          class="matrix-toggle"
+          type="button"
+          data-matrix-toggle
+          data-matrix-src="{{ "matrix/" | relURL }}?renderer=regl&amp;version=operator&amp;numColumns=72&amp;fallSpeed=0.22&amp;cycleSpeed=0.008&amp;bloomSize=0.32&amp;bloomStrength=0.48&amp;resolution=0.5&amp;fps=30&amp;suppressWarnings=true"
+          aria-pressed="false"
+          title="Enable Matrix mode"
+        >
+          <span class="matrix-icon" aria-hidden="true">01</span>
+          <span>matrix</span>
+        </button>
         <button class="focus-toggle" type="button" data-player-toggle aria-controls="focus-player" aria-expanded="false">
           <span class="mini-eq" aria-hidden="true"><i></i><i></i><i></i></span>
           <span>focus radio</span>

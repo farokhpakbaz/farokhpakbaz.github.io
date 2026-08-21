@@ -19,12 +19,72 @@
       ?.setAttribute("content", theme === "dark" ? "#0a0c0b" : "#eceee8");
   };
 
+  const matrixToggle = document.querySelector("[data-matrix-toggle]");
+  const matrixLayer = document.querySelector("[data-matrix-layer]");
+  const matrixFrame = document.querySelector("[data-matrix-frame]");
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  let matrixActive = false;
+
+  const loadMatrix = () => {
+    if (!matrixFrame?.src && !reducedMotion.matches) {
+      matrixFrame.src = matrixToggle?.dataset.matrixSrc || "";
+    }
+  };
+
+  const setMatrix = (enabled, persist = true) => {
+    matrixActive = Boolean(
+      enabled && matrixToggle && matrixLayer && matrixFrame,
+    );
+
+    if (matrixActive && root.dataset.theme !== "dark") {
+      localStorage.setItem("theme", "dark");
+      setTheme("dark");
+    }
+
+    root.classList.toggle("matrix-active", matrixActive);
+    matrixToggle?.classList.toggle("is-active", matrixActive);
+    matrixToggle?.setAttribute("aria-pressed", String(matrixActive));
+    matrixToggle?.setAttribute(
+      "title",
+      `${matrixActive ? "Disable" : "Enable"} Matrix mode`,
+    );
+
+    if (matrixLayer) matrixLayer.hidden = !matrixActive;
+    if (matrixActive) {
+      loadMatrix();
+    } else if (matrixFrame) {
+      matrixFrame.removeAttribute("src");
+    }
+
+    if (persist) {
+      localStorage.setItem("matrix-mode", matrixActive ? "on" : "off");
+    }
+  };
+
   setTheme(storedTheme || preferredTheme);
+  const matrixRequested = new URLSearchParams(window.location.search).has(
+    "matrix",
+  );
+  setMatrix(
+    matrixRequested || localStorage.getItem("matrix-mode") === "on",
+    false,
+  );
 
   toggle?.addEventListener("click", () => {
     const next = root.dataset.theme === "dark" ? "light" : "dark";
+    if (next === "light" && matrixActive) setMatrix(false);
     localStorage.setItem("theme", next);
     setTheme(next);
+  });
+
+  matrixToggle?.addEventListener("click", () => setMatrix(!matrixActive));
+  reducedMotion.addEventListener?.("change", () => {
+    if (!matrixActive || !matrixFrame) return;
+    if (reducedMotion.matches) {
+      matrixFrame.removeAttribute("src");
+    } else {
+      loadMatrix();
+    }
   });
 
   const timeNode = document.querySelector("[data-local-time]");

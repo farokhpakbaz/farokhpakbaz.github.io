@@ -7,6 +7,12 @@ musicForProgramming. Hugo refreshes its episode list from the source RSS feed
 at build time, with a local fallback for offline or unavailable builds. Audio is
 never loaded or played until a visitor opens the player and presses play.
 
+The optional **Matrix mode** uses a deliberately trimmed WebGL runtime from
+[Rezmason/matrix](https://github.com/Rezmason/matrix). It loads only after a
+visitor enables it, uses a lower frame rate and resolution than the original
+demo, and falls back to a static image when reduced motion is requested. Its
+MIT license and attribution are included in `static/matrix/`.
+
 ## Run locally
 
 ```sh

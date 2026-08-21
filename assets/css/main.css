@@ -232,6 +232,15 @@ button { font: inherit; }
 
 .lede em { color: var(--ink); font-style: normal; }
 
+.hero-command {
+  margin: 1.6rem 0 0;
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: .04em;
+}
+
+.hero-command span { margin-right: .65rem; color: var(--accent); }
+
 .identity-card {
   position: relative;
   padding: 1.5rem 0;
@@ -242,7 +251,7 @@ button { font: inherit; }
 }
 
 .identity-card::before {
-  content: "profile.js";
+  content: "profile.yaml";
   position: absolute;
   top: -1.75rem;
   left: 0;
@@ -302,6 +311,121 @@ a.project-row:hover { padding-inline: 1.25rem; background: var(--accent-soft); }
 .project-arrow { justify-self: end; color: var(--accent); font-size: 1.25rem; }
 .project-row--quiet { opacity: .64; }
 .blink { animation: blink 1.1s steps(2, start) infinite; }
+
+.stack-caption {
+  margin: 0 0 .5rem;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.6;
+  text-align: right;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+}
+
+.stack-console { border: 1px solid var(--line); }
+
+.stack-titlebar {
+  min-height: 48px;
+  padding: 0 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: .06em;
+}
+
+.stack-titlebar i {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: .65rem;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 10px rgba(183, 247, 116, .55);
+}
+
+.stack-titlebar span:last-child { color: var(--accent); text-transform: uppercase; }
+
+.stack-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 1px;
+  border-block: 1px solid var(--line);
+  background: var(--line);
+}
+
+.stack-layer {
+  position: relative;
+  min-height: 390px;
+  padding: 1.7rem;
+  background: var(--bg);
+  transition: background-color .2s ease;
+}
+
+.stack-layer:hover { background: var(--accent-soft); }
+
+.stack-number {
+  position: absolute;
+  top: 1.7rem;
+  right: 1.7rem;
+  color: var(--faint);
+  font-size: 10px;
+}
+
+.stack-path {
+  margin: 0 0 4rem;
+  color: var(--blue);
+  font-size: 10px;
+}
+
+.stack-path::before { content: "~"; color: var(--muted); }
+
+.stack-layer h3 {
+  margin: 0 0 1.25rem;
+  font-size: clamp(1.15rem, 1.7vw, 1.55rem);
+  font-weight: 400;
+  letter-spacing: -.04em;
+}
+
+.stack-layer > p:not(.stack-path) {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.75;
+}
+
+.stack-layer ul {
+  margin: 2rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: .45rem;
+  list-style: none;
+}
+
+.stack-layer li {
+  padding: .22rem .48rem;
+  border: 1px solid var(--line);
+  color: var(--accent);
+  font-size: 9px;
+  letter-spacing: .05em;
+}
+
+.stack-pipeline {
+  min-height: 64px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(.65rem, 2vw, 2rem);
+  color: var(--muted);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: .09em;
+}
+
+.stack-pipeline i { color: var(--accent); font-style: normal; }
 
 .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(4rem, 12vw, 11rem); }
 .about-copy { max-width: 620px; font-size: clamp(1.05rem, 1.7vw, 1.35rem); line-height: 1.8; }
@@ -559,6 +683,9 @@ a.project-row:hover { padding-inline: 1.25rem; background: var(--accent-soft); }
   .project-tags { grid-column: 2; }
   .project-arrow { grid-row: 1; grid-column: 3; }
   .about-grid { grid-template-columns: 1fr; }
+  .stack-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .stack-layer { min-height: 330px; }
+  .stack-layer:last-child { grid-column: 1 / -1; min-height: 280px; }
   .note-grid { grid-template-columns: 1fr; }
   .note-card { border-right: 0; border-bottom: 1px solid var(--line); }
   .note-card:last-child { border-bottom: 0; }
@@ -579,6 +706,12 @@ a.project-row:hover { padding-inline: 1.25rem; background: var(--accent-soft); }
   .scroll-cue { display: none; }
   .section-heading--row { display: block; }
   .section-heading--row .text-link { margin-top: 2rem; }
+  .stack-caption { margin-top: 2rem; text-align: left; }
+  .stack-grid { grid-template-columns: 1fr; }
+  .stack-layer,
+  .stack-layer:last-child { grid-column: auto; min-height: 0; }
+  .stack-path { margin-bottom: 2.5rem; }
+  .stack-pipeline { justify-content: flex-start; flex-wrap: wrap; }
   .project-row { grid-template-columns: 35px 1fr 24px; gap: .75rem; }
   a.project-row:hover { padding-inline: .5rem; }
   .facts div { grid-template-columns: 85px 1fr; }

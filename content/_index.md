@@ -1,4 +1,4 @@
 ---
 title: Home
-description: DevOps engineer focused on dependable infrastructure, Kubernetes platforms, automation, and observable systems.
+description: DevOps engineer with a Linux systems background, building automated infrastructure, delivery pipelines, and Kubernetes platforms.
 ---

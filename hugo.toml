@@ -1,6 +1,6 @@
 baseURL = "https://farokhpakbaz.github.io/"
 locale = "en-us"
-title = "Farokh — DevOps Engineer"
+title = "Mehdi Hasanzadeh Samadi (Farokh) — DevOps Engineer"
 enableRobotsTXT = true
 disableKinds = ["taxonomy", "term"]
 
@@ -10,11 +10,10 @@ disableKinds = ["taxonomy", "term"]
   handle = "farokh"
   monogram = "MH"
   role = "DevOps Engineer"
-  company = "Irancell Labs"
   location = "Tehran, IR"
   timezone = "Asia/Tehran"
   timezoneLabel = "IRST"
-  description = "DevOps engineer with a Linux systems background, building automated infrastructure, delivery pipelines, and Kubernetes platforms."
+  description = "Mehdi Hasanzadeh Samadi (Farokh) is a DevOps engineer specializing in Linux, Kubernetes, platform engineering, infrastructure automation, high availability, and observability."
   status = "systems nominal · automating the next thing"
   github = "https://github.com/farokhpakbaz"
   linkedin = "https://www.linkedin.com/in/mehdi-hasanzadeh-samadi-4188bb38"

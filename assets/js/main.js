@@ -425,19 +425,22 @@
     matrixUI?.classList.remove("is-idle");
     root.classList.remove("matrix-controls-idle");
     if (
-      matrixMode === "immersive" &&
+      matrixMode !== "off" &&
       matrixSettings.autoHide &&
       matrixSettingsPanel?.hidden
     ) {
       matrixIdleTimer = window.setTimeout(() => {
         if (
+          matrixMode === "immersive" &&
           !matrixKeyboardNavigation &&
           matrixUI?.contains(document.activeElement)
         ) {
           matrixUI.focus({ preventScroll: true });
         }
         matrixUI.classList.add("is-idle");
-        root.classList.add("matrix-controls-idle");
+        if (matrixMode === "immersive") {
+          root.classList.add("matrix-controls-idle");
+        }
       }, 3200);
     }
   };
@@ -547,6 +550,7 @@
         if (document.fullscreenElement === root) {
           document.exitFullscreen().catch(() => {});
         }
+        scheduleMatrixIdle();
       }
     } else {
       window.clearTimeout(matrixIdleTimer);
@@ -557,7 +561,9 @@
       if (document.fullscreenElement === root) {
         document.exitFullscreen().catch(() => {});
       }
-      (matrixLastFocus || matrixToggle)?.focus?.({ preventScroll: true });
+      if (!wasOff) {
+        (matrixLastFocus || matrixToggle)?.focus?.({ preventScroll: true });
+      }
     }
 
     document.querySelectorAll("[data-matrix-mode-choice]").forEach((choice) => {
@@ -868,16 +874,36 @@
 
   if (player && audio && playerToggle && episodes.length) {
     const titleNode = player.querySelector("[data-player-title]");
+    const miniTitleNode = player.querySelector("[data-player-mini-title]");
     const statusNode = player.querySelector("[data-player-status]");
-    const playIcon = player.querySelector("[data-play-icon]");
-    const playButton = player.querySelector("[data-player-play]");
+    const playIcons = [...player.querySelectorAll("[data-play-icon]")];
+    const playButtons = [...player.querySelectorAll("[data-player-play]")];
     const episodeSelect = player.querySelector("[data-episode-select]");
     const progress = player.querySelector("[data-player-progress]");
     const currentTimeNode = player.querySelector("[data-current-time]");
     const durationNode = player.querySelector("[data-duration]");
     const volume = player.querySelector("[data-player-volume]");
+    const sleepSelect = player.querySelector("[data-player-sleep]");
+    const playerSessionKey = "focus-player-session-v1";
+    let sleepTimer;
+    let sleepMode = "off";
+    let pendingStartTime = 0;
+    let restoredSession;
+
+    try {
+      restoredSession = JSON.parse(
+        sessionStorage.getItem(playerSessionKey) || "null",
+      );
+    } catch {
+      restoredSession = null;
+    }
+
     let episodeIndex = Number.parseInt(
-      localStorage.getItem("focus-episode") || "0",
+      String(
+        restoredSession?.episodeIndex ??
+          localStorage.getItem("focus-episode") ??
+          "0",
+      ),
       10,
     );
     let loadedIndex = -1;
@@ -904,6 +930,7 @@
     const syncEpisodeUI = () => {
       const episode = episodes[episodeIndex];
       titleNode.textContent = episode.title;
+      if (miniTitleNode) miniTitleNode.textContent = episode.title;
       durationNode.textContent = formatTime(episode.duration);
       episodeSelect.value = String(episodeIndex);
       localStorage.setItem("focus-episode", String(episodeIndex));
@@ -917,35 +944,84 @@
       }
     };
 
-    const loadEpisode = (index, playAfter = false) => {
+    const persistPlayerSession = () => {
+      if (player.hidden && loadedIndex < 0) return;
+      sessionStorage.setItem(
+        playerSessionKey,
+        JSON.stringify({
+          episodeIndex,
+          currentTime: Number.isFinite(audio.currentTime)
+            ? audio.currentTime
+            : 0,
+          playing: !audio.paused,
+          view: player.classList.contains("is-minimized")
+            ? "minimized"
+            : player.hidden
+              ? "hidden"
+              : "expanded",
+        }),
+      );
+    };
+
+    const loadEpisode = (index, playAfter = false, startTime = 0) => {
       episodeIndex = (index + episodes.length) % episodes.length;
       loadedIndex = episodeIndex;
+      pendingStartTime = Math.max(0, Number(startTime) || 0);
       audio.src = episodes[episodeIndex].url;
       audio.load();
       progress.value = "0";
       currentTimeNode.textContent = "00:00";
       syncEpisodeUI();
       setStatus("connecting to stream…");
-      if (playAfter) audio.play().catch(() => setStatus("press play to start"));
+      if (playAfter) {
+        audio.play().catch(() => setStatus("tap play to continue"));
+      }
     };
 
     const openPlayer = () => {
       player.hidden = false;
+      player.classList.remove("is-minimized");
       playerToggle.setAttribute("aria-expanded", "true");
+      playerToggle.setAttribute("title", "Minimize focus radio");
       if (loadedIndex < 0) {
         syncEpisodeUI();
         setStatus("ready when you are");
       }
+      persistPlayerSession();
     };
 
-    const closePlayer = () => {
-      player.hidden = true;
+    const minimizePlayer = () => {
+      player.hidden = false;
+      player.classList.add("is-minimized");
       playerToggle.setAttribute("aria-expanded", "false");
+      playerToggle.setAttribute("title", "Expand focus radio");
+      persistPlayerSession();
+    };
+
+    const stopAndClosePlayer = () => {
+      window.clearTimeout(sleepTimer);
+      sleepMode = "off";
+      sleepSelect.value = "off";
+      audio.pause();
+      audio.removeAttribute("src");
+      audio.load();
+      loadedIndex = -1;
+      pendingStartTime = 0;
+      player.hidden = true;
+      player.classList.remove("is-minimized", "is-playing");
+      playerToggle.classList.remove("is-playing");
+      playerToggle.setAttribute("aria-expanded", "false");
+      playerToggle.setAttribute("title", "Open focus radio");
+      sessionStorage.removeItem(playerSessionKey);
+      if ("mediaSession" in navigator) navigator.mediaSession.playbackState = "none";
       playerToggle.focus({ preventScroll: true });
     };
 
     const togglePlayback = () => {
-      if (loadedIndex < 0) loadEpisode(episodeIndex);
+      if (loadedIndex < 0) {
+        loadEpisode(episodeIndex, true);
+        return;
+      }
       if (audio.paused) {
         setStatus("connecting to stream…");
         audio
@@ -959,19 +1035,31 @@
     const changeEpisode = (offset) =>
       loadEpisode(episodeIndex + offset, !audio.paused);
 
-    playerToggle.addEventListener("click", () =>
-      player.hidden ? openPlayer() : closePlayer(),
+    playerToggle.addEventListener("click", () => {
+      if (player.hidden || player.classList.contains("is-minimized")) {
+        openPlayer();
+      } else {
+        minimizePlayer();
+      }
+    });
+    player.querySelectorAll("[data-player-minimize]").forEach((button) =>
+      button.addEventListener("click", minimizePlayer),
     );
-    player
-      .querySelector("[data-player-close]")
-      .addEventListener("click", closePlayer);
-    playButton.addEventListener("click", togglePlayback);
-    player
-      .querySelector("[data-player-prev]")
-      .addEventListener("click", () => changeEpisode(-1));
-    player
-      .querySelector("[data-player-next]")
-      .addEventListener("click", () => changeEpisode(1));
+    player.querySelectorAll("[data-player-expand]").forEach((button) =>
+      button.addEventListener("click", openPlayer),
+    );
+    player.querySelectorAll("[data-player-close]").forEach((button) =>
+      button.addEventListener("click", stopAndClosePlayer),
+    );
+    playButtons.forEach((button) =>
+      button.addEventListener("click", togglePlayback),
+    );
+    player.querySelectorAll("[data-player-prev]").forEach((button) =>
+      button.addEventListener("click", () => changeEpisode(-1)),
+    );
+    player.querySelectorAll("[data-player-next]").forEach((button) =>
+      button.addEventListener("click", () => changeEpisode(1)),
+    );
     player
       .querySelector("[data-player-rewind]")
       .addEventListener("click", () => {
@@ -1007,28 +1095,77 @@
       localStorage.setItem("focus-volume", String(audio.volume));
     });
 
+    sleepSelect.addEventListener("change", () => {
+      window.clearTimeout(sleepTimer);
+      sleepMode = sleepSelect.value;
+      const minutes = Number(sleepMode);
+      if (Number.isFinite(minutes) && minutes > 0) {
+        sleepTimer = window.setTimeout(() => {
+          audio.pause();
+          sleepMode = "off";
+          sleepSelect.value = "off";
+          setStatus("sleep timer complete · paused");
+          persistPlayerSession();
+        }, minutes * 60 * 1000);
+        setStatus(`sleep timer · ${minutes} min`);
+      } else if (sleepMode === "episode") {
+        setStatus("sleep timer · end of episode");
+      } else {
+        setStatus(audio.paused ? "paused" : "signal locked · streaming");
+      }
+    });
+
     audio.addEventListener("playing", () => {
       player.classList.add("is-playing");
       playerToggle.classList.add("is-playing");
-      playIcon.textContent = "PAUSE";
-      playButton.setAttribute("aria-label", "Pause");
+      playIcons.forEach((icon) => {
+        icon.textContent = icon.closest(".player-mini") ? "Ⅱ" : "PAUSE";
+      });
+      playButtons.forEach((button) =>
+        button.setAttribute("aria-label", "Pause"),
+      );
       setStatus("signal locked · streaming");
+      if ("mediaSession" in navigator)
+        navigator.mediaSession.playbackState = "playing";
+      persistPlayerSession();
     });
 
     audio.addEventListener("pause", () => {
       player.classList.remove("is-playing");
       playerToggle.classList.remove("is-playing");
-      playIcon.textContent = "PLAY";
-      playButton.setAttribute("aria-label", "Play");
+      playIcons.forEach((icon) => {
+        icon.textContent = icon.closest(".player-mini") ? "▶" : "PLAY";
+      });
+      playButtons.forEach((button) =>
+        button.setAttribute("aria-label", "Play"),
+      );
       if (audio.currentTime > 0 && !audio.ended) setStatus("paused");
+      if ("mediaSession" in navigator)
+        navigator.mediaSession.playbackState = "paused";
+      persistPlayerSession();
     });
 
     audio.addEventListener("waiting", () => setStatus("buffering…"));
-    audio.addEventListener("error", () =>
-      setStatus("stream unavailable — try another episode"),
-    );
-    audio.addEventListener("ended", () => changeEpisode(1));
+    audio.addEventListener("error", () => {
+      if (audio.getAttribute("src"))
+        setStatus("stream unavailable — try another episode");
+    });
+    audio.addEventListener("ended", () => {
+      if (sleepMode === "episode") {
+        sleepMode = "off";
+        sleepSelect.value = "off";
+        setStatus("sleep timer complete");
+        persistPlayerSession();
+      } else {
+        changeEpisode(1);
+      }
+    });
     audio.addEventListener("loadedmetadata", () => {
+      if (pendingStartTime > 0) {
+        const duration = audio.duration || episodes[episodeIndex].duration;
+        audio.currentTime = Math.min(pendingStartTime, Math.max(0, duration - 1));
+        pendingStartTime = 0;
+      }
       durationNode.textContent = formatTime(
         audio.duration || episodes[episodeIndex].duration,
       );
@@ -1041,11 +1178,36 @@
         Number.isFinite(duration) && duration > 0
           ? String(Math.round((audio.currentTime / duration) * 1000))
           : "0";
+      player.style.setProperty(
+        "--player-progress",
+        `${Number(progress.value) / 10}%`,
+      );
+      if (
+        "mediaSession" in navigator &&
+        Number.isFinite(duration) &&
+        duration > 0 &&
+        audio.currentTime <= duration
+      ) {
+        try {
+          navigator.mediaSession.setPositionState({
+            duration,
+            playbackRate: audio.playbackRate,
+            position: audio.currentTime,
+          });
+        } catch {
+          // Some streaming responses expose incomplete duration metadata.
+        }
+      }
     });
 
+    window.addEventListener("pagehide", persistPlayerSession);
+
     if ("mediaSession" in navigator) {
-      navigator.mediaSession.setActionHandler("play", togglePlayback);
-      navigator.mediaSession.setActionHandler("pause", togglePlayback);
+      navigator.mediaSession.setActionHandler("play", () => {
+        if (loadedIndex < 0) loadEpisode(episodeIndex, true);
+        else audio.play().catch(() => setStatus("tap play to continue"));
+      });
+      navigator.mediaSession.setActionHandler("pause", () => audio.pause());
       navigator.mediaSession.setActionHandler("previoustrack", () =>
         changeEpisode(-1),
       );
@@ -1061,9 +1223,38 @@
           audio.currentTime + 30,
         );
       });
+      navigator.mediaSession.setActionHandler("seekto", (details) => {
+        if (Number.isFinite(details.seekTime)) {
+          audio.currentTime = details.seekTime;
+        }
+      });
+      navigator.mediaSession.setActionHandler("stop", stopAndClosePlayer);
     }
 
     syncEpisodeUI();
-    if (new URLSearchParams(window.location.search).has("focus")) openPlayer();
+    playerToggle.setAttribute("title", "Open focus radio");
+    const focusRequest = new URLSearchParams(window.location.search).get(
+      "focus",
+    );
+    const focusRequested = focusRequest !== null;
+    const shouldRestore =
+      restoredSession &&
+      episodes[restoredSession.episodeIndex] &&
+      ["expanded", "minimized", "hidden"].includes(restoredSession.view);
+
+    if (shouldRestore) {
+      if (focusRequest === "mini") minimizePlayer();
+      else if (focusRequested || restoredSession.view === "expanded")
+        openPlayer();
+      else minimizePlayer();
+      loadEpisode(
+        Number(restoredSession.episodeIndex),
+        Boolean(restoredSession.playing),
+        Number(restoredSession.currentTime) || 0,
+      );
+    } else if (focusRequested) {
+      if (focusRequest === "mini") minimizePlayer();
+      else openPlayer();
+    }
   }
 })();

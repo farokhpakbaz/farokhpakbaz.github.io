@@ -8,9 +8,29 @@
 >
   <div class="player-titlebar">
     <p><span>musicForProgramming</span>(<q>focus</q>);</p>
-    <button type="button" data-player-close aria-label="Collapse player">
-      ×
+    <div class="player-titlebar__actions">
+      <button type="button" data-player-minimize aria-label="Minimize focus radio" title="Minimize">−</button>
+      <button type="button" data-player-close aria-label="Stop and close focus radio" title="Stop and close">×</button>
+    </div>
+  </div>
+
+  <div class="player-mini" data-player-mini>
+    <button class="player-mini__now" type="button" data-player-expand aria-label="Expand focus radio">
+      <span class="player-mini__signal" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span>
+        <small>focus radio</small>
+        <strong data-player-mini-title>{{ (index $episodes 0).title }}</strong>
+      </span>
     </button>
+    <div class="player-mini__controls">
+      <button type="button" data-player-prev aria-label="Previous episode">|←</button>
+      <button class="player-mini__play" type="button" data-player-play aria-label="Play">
+        <span data-play-icon aria-hidden="true">▶</span>
+      </button>
+      <button type="button" data-player-next aria-label="Next episode">→|</button>
+      <button type="button" data-player-expand aria-label="Expand focus radio" title="Expand">↗</button>
+      <button type="button" data-player-close aria-label="Stop and close focus radio" title="Stop and close">×</button>
+    </div>
   </div>
 
   <div class="player-display">
@@ -66,17 +86,29 @@
   </div>
 
   <div class="player-footer">
-    <label
-      ><span>vol</span
-      ><input
-        type="range"
-        data-player-volume
-        min="0"
-        max="1"
-        step="0.05"
-        value="0.8"
-        aria-label="Volume"
-    /></label>
+    <div class="player-footer__controls">
+      <label
+        ><span>vol</span
+        ><input
+          type="range"
+          data-player-volume
+          min="0"
+          max="1"
+          step="0.05"
+          value="0.8"
+          aria-label="Volume"
+      /></label>
+      <label class="player-sleep">
+        <span>sleep</span>
+        <select data-player-sleep aria-label="Sleep timer">
+          <option value="off">off</option>
+          <option value="15">15 min</option>
+          <option value="30">30 min</option>
+          <option value="60">60 min</option>
+          <option value="episode">end of episode</option>
+        </select>
+      </label>
+    </div>
     <a href="https://musicforprogramming.net" target="_blank" rel="noopener"
       >source: musicforprogramming.net ↗</a
     >

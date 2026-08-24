@@ -5,7 +5,10 @@ A small personal portfolio built with Hugo. Its visual language is inspired by t
 The optional **focus radio** streams recent mixes directly from
 musicForProgramming. Hugo refreshes its episode list from the source RSS feed
 at build time, with a local fallback for offline or unavailable builds. Audio is
-never loaded or played until a visitor opens the player and presses play.
+never loaded or played until a visitor opens the player and presses play. The
+player can collapse into a compact controller without interrupting playback,
+integrates with browser media controls, remembers position during same-tab site
+navigation, and includes a sleep timer.
 
 The optional **Matrix mode** is powered by a deliberately trimmed WebGL runtime
 from [Rezmason/matrix](https://github.com/Rezmason/matrix). It offers two

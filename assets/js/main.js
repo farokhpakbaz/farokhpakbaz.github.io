@@ -889,6 +889,40 @@
     let sleepMode = "off";
     let pendingStartTime = 0;
     let restoredSession;
+    let playerClearanceFrame;
+
+    const syncPlayerClearance = () => {
+      window.cancelAnimationFrame(playerClearanceFrame);
+      playerClearanceFrame = window.requestAnimationFrame(() => {
+        if (player.hidden) {
+          root.style.removeProperty("--focus-player-clearance");
+          root.style.removeProperty("--focus-player-edge");
+          return;
+        }
+
+        const playerRect = player.getBoundingClientRect();
+        const playerStyle = window.getComputedStyle(player);
+        const panelGap = 16;
+        const minimumEdge = window.innerWidth <= 650 ? 12 : 24;
+        const bottomOffset = Number.parseFloat(playerStyle.bottom) || 0;
+        const clearance = Math.ceil(
+          player.offsetHeight + bottomOffset + panelGap,
+        );
+        const edge = Math.ceil(
+          Math.max(minimumEdge, window.innerWidth - playerRect.right),
+        );
+        root.style.setProperty(
+          "--focus-player-clearance",
+          `${Math.max(12, clearance)}px`,
+        );
+        root.style.setProperty("--focus-player-edge", `${edge}px`);
+      });
+    };
+
+    if ("ResizeObserver" in window) {
+      new ResizeObserver(syncPlayerClearance).observe(player);
+    }
+    window.addEventListener("resize", syncPlayerClearance);
 
     try {
       restoredSession = JSON.parse(
@@ -987,6 +1021,7 @@
         syncEpisodeUI();
         setStatus("ready when you are");
       }
+      syncPlayerClearance();
       persistPlayerSession();
     };
 
@@ -995,6 +1030,7 @@
       player.classList.add("is-minimized");
       playerToggle.setAttribute("aria-expanded", "false");
       playerToggle.setAttribute("title", "Expand focus radio");
+      syncPlayerClearance();
       persistPlayerSession();
     };
 
@@ -1012,6 +1048,7 @@
       playerToggle.classList.remove("is-playing");
       playerToggle.setAttribute("aria-expanded", "false");
       playerToggle.setAttribute("title", "Open focus radio");
+      syncPlayerClearance();
       sessionStorage.removeItem(playerSessionKey);
       if ("mediaSession" in navigator) navigator.mediaSession.playbackState = "none";
       playerToggle.focus({ preventScroll: true });

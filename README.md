@@ -7,11 +7,16 @@ musicForProgramming. Hugo refreshes its episode list from the source RSS feed
 at build time, with a local fallback for offline or unavailable builds. Audio is
 never loaded or played until a visitor opens the player and presses play.
 
-The optional **Matrix mode** uses a deliberately trimmed WebGL runtime from
-[Rezmason/matrix](https://github.com/Rezmason/matrix). It loads only after a
-visitor enables it, uses a lower frame rate and resolution than the original
-demo, and falls back to a static image when reduced motion is requested. Its
-MIT license and attribution are included in `static/matrix/`.
+The optional **Matrix mode** is powered by a deliberately trimmed WebGL runtime
+from [Rezmason/matrix](https://github.com/Rezmason/matrix). It offers two
+experiences: **Ambient** keeps the website usable over subtle digital rain, while
+**Immersive** becomes a full-screen rain-only view. Visitors can tune character
+size, color, fall and symbol speed, trails, angle, brightness, contrast, spacing,
+bloom, quality, ambient opacity, vignette, scanlines, and an optional lead-glyph
+beacon (off by default). Disabling animation freezes the live canvas instead of
+substituting a stock image. Controls auto-hide while idle, settings persist
+locally, and reduced-motion visitors start with the live canvas paused. Its MIT
+license and attribution are included in `static/matrix/`.
 
 ## Run locally
 
@@ -50,6 +55,7 @@ publishes it automatically; generated HTML should not be edited or committed.
 - Blog posts: `content/notes/*.md`
 - Visual design: `assets/css/main.css`
 - Focus-player fallback data: `data/focus_episodes.json`
+- Matrix runtime and fallback: `static/matrix/`
 
 Create a production build with `hugo --gc --minify --cleanDestinationDir`. The
 generated site is written to `public/`.

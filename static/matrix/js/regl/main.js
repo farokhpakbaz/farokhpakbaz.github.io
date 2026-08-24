@@ -92,11 +92,19 @@ export default async (canvas, config) => {
 
 	const targetFrameTimeMilliseconds = 1000 / config.fps;
 	let last = NaN;
+	let paused = Boolean(window.matrixRainPaused);
+	let renderedFrames = 0;
+	window.addEventListener("matrix:pause-change", (event) => {
+		paused = Boolean(event.detail?.paused);
+	});
 
 	const tick = regl.frame(({ viewportWidth, viewportHeight }) => {
 		if (config.once) {
 			tick.cancel();
 		}
+		// Preserve the actual canvas frame when paused. A few warm-up frames ensure
+		// the rain buffers contain a meaningful image even for reduced-motion users.
+		if (paused && renderedFrames >= 4) return;
 
 		const now = regl.now() * 1000;
 
@@ -128,5 +136,6 @@ export default async (canvas, config) => {
 			}
 			drawToScreen();
 		});
+		renderedFrames += 1;
 	});
 };

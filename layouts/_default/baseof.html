@@ -16,7 +16,12 @@
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
-  <div class="matrix-layer" data-matrix-layer hidden aria-hidden="true">
+  <div
+    class="matrix-layer"
+    data-matrix-layer
+    hidden
+    aria-hidden="true"
+  >
     <iframe
       data-matrix-frame
       title=""
@@ -26,6 +31,194 @@
     ></iframe>
     <div class="matrix-vignette" aria-hidden="true"></div>
   </div>
+
+  <section class="matrix-ui" data-matrix-ui hidden tabindex="-1">
+      <div class="matrix-toolbar" data-matrix-toolbar>
+        <div class="matrix-toolbar__identity">
+          <span class="matrix-mark" aria-hidden="true">01</span>
+          <div>
+            <strong>matrix / immersive</strong>
+            <span data-matrix-status aria-live="polite">initializing signal…</span>
+          </div>
+        </div>
+        <div class="matrix-toolbar__actions">
+          <button type="button" data-matrix-ambient>ambient</button>
+          <button
+            type="button"
+            data-matrix-settings-toggle
+            aria-controls="matrix-settings"
+            aria-expanded="false"
+          >
+            tune
+          </button>
+          <button type="button" data-matrix-fullscreen>fullscreen</button>
+          <button class="matrix-exit" type="button" data-matrix-close>
+            exit <span aria-hidden="true">×</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="matrix-ambient-dock" data-matrix-ambient-dock>
+        <span class="matrix-ambient-dock__signal" aria-hidden="true"></span>
+        <div>
+          <strong>matrix</strong>
+          <span>ambient signal</span>
+        </div>
+        <button type="button" data-matrix-settings-toggle aria-controls="matrix-settings">tune</button>
+        <button type="button" data-matrix-immersive>immerse</button>
+        <button type="button" data-matrix-close aria-label="Turn off Matrix mode">×</button>
+      </div>
+
+      <form class="matrix-settings" id="matrix-settings" data-matrix-settings hidden>
+        <div class="matrix-settings__heading">
+          <div>
+            <p>signal laboratory</p>
+            <h2>Shape the rain<span aria-hidden="true">.</span></h2>
+          </div>
+          <button type="button" data-matrix-settings-close aria-label="Close Matrix settings">×</button>
+        </div>
+
+        <div class="matrix-settings__divider matrix-settings__divider--first"><span>rain geometry</span></div>
+
+        <label class="matrix-field">
+          <span>Preset</span>
+          <select data-matrix-setting="preset">
+            <option value="trilogy">Trilogy rain</option>
+            <option value="operator">Operator</option>
+            <option value="calm">Quiet terminal</option>
+            <option value="dense">Dense code</option>
+            <option value="blue">Blue shift</option>
+            <option value="amber">Amber terminal</option>
+            <option value="custom">Custom</option>
+          </select>
+        </label>
+
+        <label class="matrix-field matrix-field--color">
+          <span>Rain color</span>
+          <input type="color" value="#63ff8a" data-matrix-setting="color">
+          <output data-matrix-output="color">#63ff8a</output>
+        </label>
+
+        <label class="matrix-field">
+          <span>Fall speed</span>
+          <input type="range" min="0.03" max="1.2" step="0.03" value="0.3" data-matrix-setting="speed">
+          <output data-matrix-output="speed">0.30×</output>
+        </label>
+
+        <label class="matrix-field">
+          <span>Character size</span>
+          <input type="range" min="7" max="28" step="1" value="13" data-matrix-setting="charSize">
+          <output data-matrix-output="charSize">13 px</output>
+        </label>
+
+        <label class="matrix-field">
+          <span>Symbol change</span>
+          <input type="range" min="0.002" max="0.08" step="0.002" value="0.012" data-matrix-setting="cycleSpeed">
+          <output data-matrix-output="cycleSpeed">0.012</output>
+        </label>
+
+        <label class="matrix-field">
+          <span>Trail length</span>
+          <input type="range" min="0.2" max="2" step="0.1" value="0.8" data-matrix-setting="trail">
+          <output data-matrix-output="trail">0.8</output>
+        </label>
+
+        <label class="matrix-field">
+          <span>Rain angle</span>
+          <input type="range" min="-18" max="18" step="1" value="0" data-matrix-setting="slant">
+          <output data-matrix-output="slant">0°</output>
+        </label>
+
+        <div class="matrix-settings__divider"><span>light &amp; texture</span></div>
+
+        <label class="matrix-field">
+          <span>Bloom</span>
+          <input type="range" min="0" max="1" step="0.05" value="0.5" data-matrix-setting="glow">
+          <output data-matrix-output="glow">50%</output>
+        </label>
+
+        <label class="matrix-field">
+          <span>Brightness</span>
+          <input type="range" min="-1.2" max="0.2" step="0.05" value="-0.5" data-matrix-setting="brightness">
+          <output data-matrix-output="brightness">−0.50</output>
+        </label>
+
+        <label class="matrix-field">
+          <span>Contrast</span>
+          <input type="range" min="0.7" max="2" step="0.05" value="1.1" data-matrix-setting="contrast">
+          <output data-matrix-output="contrast">1.10</output>
+        </label>
+
+        <label class="matrix-field">
+          <span>Line spacing</span>
+          <input type="range" min="0.7" max="1.5" step="0.05" value="1" data-matrix-setting="spacing">
+          <output data-matrix-output="spacing">1.00</output>
+        </label>
+
+        <label class="matrix-field">
+          <span>Render quality</span>
+          <select data-matrix-setting="quality">
+            <option value="eco">Eco · 24 fps</option>
+            <option value="balanced">Balanced · 30 fps</option>
+            <option value="high">High · 60 fps</option>
+          </select>
+        </label>
+
+        <div class="matrix-settings__divider"><span>lead beacon</span></div>
+        <label class="matrix-switch matrix-switch--featured">
+          <span>
+            <strong>Bright lead glyph</strong>
+            <small>Optional cursor highlight; off for the trilogy look.</small>
+          </span>
+          <input type="checkbox" data-matrix-setting="beacon">
+        </label>
+
+        <div class="matrix-beacon-options" data-matrix-beacon-options>
+          <label class="matrix-field matrix-field--color">
+            <span>Beacon color</span>
+            <input type="color" value="#c8ffd4" data-matrix-setting="beaconColor">
+            <output data-matrix-output="beaconColor">#c8ffd4</output>
+          </label>
+          <label class="matrix-field">
+            <span>Intensity</span>
+            <input type="range" min="0.5" max="4" step="0.1" value="1.8" data-matrix-setting="beaconIntensity">
+            <output data-matrix-output="beaconIntensity">1.8×</output>
+          </label>
+        </div>
+
+        <div class="matrix-settings__divider"><span>experience</span></div>
+        <label class="matrix-field">
+          <span>Ambient opacity</span>
+          <input type="range" min="0.08" max="0.42" step="0.02" value="0.22" data-matrix-setting="ambientOpacity">
+          <output data-matrix-output="ambientOpacity">22%</output>
+        </label>
+        <label class="matrix-field">
+          <span>Vignette</span>
+          <input type="range" min="0" max="1" step="0.05" value="0.58" data-matrix-setting="vignette">
+          <output data-matrix-output="vignette">58%</output>
+        </label>
+
+        <div class="matrix-switches">
+          <label class="matrix-switch">
+            <span><strong>Animated rain</strong><small>Pause on the current frame when off.</small></span>
+            <input type="checkbox" data-matrix-setting="animate" checked>
+          </label>
+          <label class="matrix-switch">
+            <span><strong>Scanlines</strong><small>Subtle CRT texture.</small></span>
+            <input type="checkbox" data-matrix-setting="scanlines" checked>
+          </label>
+          <label class="matrix-switch">
+            <span><strong>Auto-hide controls</strong><small>Immersive mode only.</small></span>
+            <input type="checkbox" data-matrix-setting="autoHide" checked>
+          </label>
+        </div>
+
+        <div class="matrix-settings__footer">
+          <button type="button" data-matrix-reset>restore trilogy defaults</button>
+          <span>M toggle · S tune · F fullscreen · Esc exit</span>
+        </div>
+      </form>
+  </section>
   <div class="site-shell">
     <header class="site-header" aria-label="Primary navigation">
       <a class="wordmark" href="{{ site.Home.RelPermalink }}" aria-label="{{ site.Params.name }}, home">
@@ -38,17 +231,39 @@
         <a href="{{ "notes/" | relURL }}">notes</a>
       </nav>
       <div class="header-actions">
-        <button
-          class="matrix-toggle"
-          type="button"
-          data-matrix-toggle
-          data-matrix-src="{{ "matrix/" | relURL }}?renderer=regl&amp;version=operator&amp;numColumns=72&amp;fallSpeed=0.22&amp;cycleSpeed=0.008&amp;bloomSize=0.32&amp;bloomStrength=0.48&amp;resolution=0.5&amp;fps=30&amp;suppressWarnings=true"
-          aria-pressed="false"
-          title="Enable Matrix mode"
-        >
-          <span class="matrix-icon" aria-hidden="true">01</span>
-          <span>matrix</span>
-        </button>
+        <div class="matrix-launcher" data-matrix-launcher>
+          <button
+            class="matrix-toggle"
+            type="button"
+            data-matrix-toggle
+            data-matrix-src="{{ "matrix/" | relURL }}"
+            aria-pressed="false"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            aria-controls="matrix-mode-menu"
+            title="Choose Matrix experience"
+          >
+            <span class="matrix-icon" aria-hidden="true">01</span>
+            <span>matrix</span>
+            <span class="matrix-toggle__chevron" aria-hidden="true">⌄</span>
+          </button>
+          <div class="matrix-mode-menu" id="matrix-mode-menu" data-matrix-mode-menu role="menu" hidden>
+            <p>choose a signal</p>
+            <button type="button" role="menuitem" data-matrix-mode-choice="ambient">
+              <span aria-hidden="true">BG</span>
+              <strong>Ambient</strong>
+              <small>Rain behind the website</small>
+            </button>
+            <button type="button" role="menuitem" data-matrix-mode-choice="immersive">
+              <span aria-hidden="true">∞</span>
+              <strong>Immersive</strong>
+              <small>Only the digital rain</small>
+            </button>
+            <button class="matrix-mode-menu__off" type="button" role="menuitem" data-matrix-mode-choice="off">
+              disconnect signal
+            </button>
+          </div>
+        </div>
         <button class="focus-toggle" type="button" data-player-toggle aria-controls="focus-player" aria-expanded="false">
           <span class="mini-eq" aria-hidden="true"><i></i><i></i><i></i></span>
           <span>focus radio</span>

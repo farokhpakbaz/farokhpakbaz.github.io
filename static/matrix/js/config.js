@@ -474,6 +474,18 @@ const paramMapping = {
 		key: "bloomStrength",
 		parser: (s) => nullNaN(range(parseFloat(s), 0, 1)),
 	},
+	baseBrightness: {
+		key: "baseBrightness",
+		parser: (s) => nullNaN(range(parseFloat(s), -2, 1)),
+	},
+	baseContrast: {
+		key: "baseContrast",
+		parser: (s) => nullNaN(range(parseFloat(s), 0, 4)),
+	},
+	glyphVerticalSpacing: {
+		key: "glyphVerticalSpacing",
+		parser: (s) => nullNaN(range(parseFloat(s), 0.5, 2)),
+	},
 	ditherMagnitude: {
 		key: "ditherMagnitude",
 		parser: (s) => nullNaN(range(parseFloat(s), 0, 1)),
@@ -495,6 +507,7 @@ const paramMapping = {
 		key: "cursorIntensity",
 		parser: (s) => nullNaN(range(parseFloat(s), 0, Infinity)),
 	},
+	isolateCursor: { key: "isolateCursor", parser: isTrue },
 
 	glyphIntensity: {
 		key: "glyphIntensity",

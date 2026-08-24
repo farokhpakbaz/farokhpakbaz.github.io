@@ -2,6 +2,16 @@ import makeConfig from "./config.js";
 
 const canvas = document.createElement("canvas");
 document.body.appendChild(canvas);
+window.matrixRainPaused = false;
+window.addEventListener("message", (event) => {
+	if (event.source !== window.parent || event.data?.type !== "matrix:set-paused") return;
+	window.matrixRainPaused = Boolean(event.data.paused);
+	window.dispatchEvent(
+		new CustomEvent("matrix:pause-change", {
+			detail: { paused: window.matrixRainPaused },
+		}),
+	);
+});
 document.addEventListener("touchmove", (e) => e.preventDefault(), {
 	passive: false,
 });

@@ -27,6 +27,9 @@
   const matrixUI = document.querySelector("[data-matrix-ui]");
   const matrixStatus = document.querySelector("[data-matrix-status]");
   const matrixSettingsPanel = document.querySelector("[data-matrix-settings]");
+  const matrixInstallButtons = [
+    ...document.querySelectorAll("[data-matrix-install]"),
+  ];
   const matrixSettingsToggles = [
     ...document.querySelectorAll("[data-matrix-settings-toggle]"),
   ];
@@ -43,6 +46,17 @@
   let matrixResizeTimer;
   let matrixKeyboardNavigation = false;
   let matrixLastFocus;
+  let matrixInstallPrompt;
+
+  const matrixAppDisplay = ["fullscreen", "standalone", "minimal-ui"].some(
+    (mode) => window.matchMedia(`(display-mode: ${mode})`).matches,
+  );
+
+  const syncMatrixInstallButtons = () => {
+    matrixInstallButtons.forEach((button) => {
+      button.hidden = matrixAppDisplay || !matrixInstallPrompt;
+    });
+  };
 
   const matrixPresets = {
     trilogy: {
@@ -484,6 +498,34 @@
     }
   };
 
+  window.addEventListener("beforeinstallprompt", (event) => {
+    event.preventDefault();
+    matrixInstallPrompt = event;
+    syncMatrixInstallButtons();
+  });
+
+  window.addEventListener("appinstalled", () => {
+    matrixInstallPrompt = undefined;
+    syncMatrixInstallButtons();
+    setMatrixStatus("Matrix Immersive installed");
+  });
+
+  matrixInstallButtons.forEach((button) =>
+    button.addEventListener("click", async () => {
+      if (!matrixInstallPrompt) return;
+      setMatrixModeMenu(false);
+      await matrixInstallPrompt.prompt();
+      const { outcome } = await matrixInstallPrompt.userChoice;
+      matrixInstallPrompt = undefined;
+      syncMatrixInstallButtons();
+      setMatrixStatus(
+        outcome === "accepted"
+          ? "install accepted · launching from Chrome apps"
+          : "installation cancelled",
+      );
+    }),
+  );
+
   const setMatrixMode = (nextMode, persist = true) => {
     const requestedMode = ["ambient", "immersive"].includes(nextMode)
       ? nextMode
@@ -591,9 +633,13 @@
   const matrixRequested = new URLSearchParams(window.location.search).get(
     "matrix",
   );
+  const matrixAppRequested =
+    new URLSearchParams(window.location.search).get("app") === "matrix";
   const storedMatrixMode = localStorage.getItem("matrix-mode");
   setMatrixMode(
-    matrixRequested === "ambient"
+    matrixAppDisplay || matrixAppRequested
+      ? "immersive"
+      : matrixRequested === "ambient"
       ? "ambient"
       : matrixRequested !== null
         ? "immersive"
@@ -1293,5 +1339,14 @@
       if (focusRequest === "mini") minimizePlayer();
       else openPlayer();
     }
+  }
+
+  const serviceWorkerURL = document.currentScript?.dataset.serviceWorker;
+  if (serviceWorkerURL && "serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register(serviceWorkerURL).catch(() => {
+        // Matrix still works online when private browsing blocks registration.
+      });
+    });
   }
 })();

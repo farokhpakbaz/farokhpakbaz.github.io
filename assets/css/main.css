@@ -844,6 +844,16 @@ button {
   box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 24%, transparent);
 }
 
+.matrix-mode-menu > .matrix-mode-menu__install {
+  margin-top: 0.35rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 44%, var(--line));
+  background: color-mix(in srgb, var(--accent-soft) 72%, transparent);
+}
+
+.matrix-mode-menu > .matrix-mode-menu__install[hidden] {
+  display: none;
+}
+
 .matrix-mode-menu__off {
   width: 100%;
   min-height: 34px;
@@ -2054,6 +2064,12 @@ a.project-row:hover {
   .matrix-layer::before {
     transition: none;
     animation: none;
+  }
+}
+
+@media (display-mode: fullscreen), (display-mode: standalone) {
+  .matrix-exit {
+    display: none;
   }
 }
 

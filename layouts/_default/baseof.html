@@ -13,6 +13,10 @@
   <title>{{ if .IsHome }}{{ site.Title }}{{ else }}{{ .Title }} — {{ site.Params.name }}{{ end }}</title>
   <link rel="canonical" href="{{ .Permalink }}">
   <link rel="icon" href="{{ "favicon.svg" | relURL }}" type="image/svg+xml">
+  <link rel="manifest" href="{{ "matrix-app.webmanifest" | relURL }}">
+  <link rel="apple-touch-icon" href="{{ "icons/matrix-app-192.png" | relURL }}">
+  <meta name="application-name" content="Matrix Immersive">
+  <meta name="mobile-web-app-capable" content="yes">
   {{- if .IsHome }}
     {{- $profile := dict
       "@context" "https://schema.org"
@@ -277,6 +281,11 @@
               <strong>Immersive</strong>
               <small>Only the digital rain</small>
             </button>
+            <button class="matrix-mode-menu__install" type="button" role="menuitem" data-matrix-install hidden>
+              <span aria-hidden="true">↓</span>
+              <strong>Install Matrix app</strong>
+              <small>Launch Immersive from Chrome</small>
+            </button>
             <button class="matrix-mode-menu__off" type="button" role="menuitem" data-matrix-mode-choice="off">
               disconnect signal
             </button>
@@ -301,6 +310,11 @@
   </div>
   {{ partial "player.html" . }}
   {{ $script := resources.Get "js/main.js" | minify | fingerprint }}
-  <script src="{{ $script.RelPermalink }}" integrity="{{ $script.Data.Integrity }}" defer></script>
+  <script
+    src="{{ $script.RelPermalink }}"
+    integrity="{{ $script.Data.Integrity }}"
+    data-service-worker="{{ "sw.js" | relURL }}"
+    defer
+  ></script>
 </body>
 </html>

@@ -21,6 +21,11 @@ substituting a stock image. Controls auto-hide while idle, settings persist
 locally, and reduced-motion visitors start with the live canvas paused. Its MIT
 license and attribution are included in `static/matrix/`.
 
+Chrome visitors can install **Matrix Immersive** as a Progressive Web App from
+the Matrix menu. The installed app launches directly into the fullscreen rain
+experience, keeps the existing tuning preferences, and caches its renderer for
+later launches.
+
 ## Run locally
 
 ```sh
@@ -59,6 +64,7 @@ publishes it automatically; generated HTML should not be edited or committed.
 - Visual design: `assets/css/main.css`
 - Focus-player fallback data: `data/focus_episodes.json`
 - Matrix runtime and fallback: `static/matrix/`
+- Matrix PWA manifest and offline worker: `static/matrix-app.webmanifest`, `static/sw.js`
 
 Create a production build with `hugo --gc --minify --cleanDestinationDir`. The
 generated site is written to `public/`.

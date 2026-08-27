@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+  <title id="title">Matrix Immersive</title>
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="44%" r="72%">
+      <stop offset="0" stop-color="#08230f"/>
+      <stop offset="1" stop-color="#010503"/>
+    </radialGradient>
+    <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="7" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="512" height="512" fill="url(#bg)"/>
+  <g fill="#1b6f33" font-family="monospace" font-size="31" opacity=".62">
+    <text x="92" y="145">10</text><text x="92" y="181">01</text><text x="92" y="217">11</text>
+    <text x="388" y="286">01</text><text x="388" y="322">10</text><text x="388" y="358">01</text>
+    <text x="155" y="372">10</text><text x="155" y="408">11</text>
+    <text x="325" y="124">01</text><text x="325" y="160">10</text>
+  </g>
+  <rect x="134" y="134" width="244" height="244" rx="54" fill="#020704" stroke="#54e477" stroke-width="5"/>
+  <g filter="url(#glow)" fill="#8cff9f" font-family="monospace" font-weight="700" text-anchor="middle">
+    <text x="256" y="284" font-size="116">01</text>
+  </g>
+  <path d="M188 325h136" stroke="#54e477" stroke-width="5" opacity=".72"/>
+</svg>

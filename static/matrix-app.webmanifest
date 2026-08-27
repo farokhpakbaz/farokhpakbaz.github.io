@@ -1,0 +1,29 @@
+{
+  "id": "/matrix-immersive",
+  "name": "Farokh — Matrix Immersive",
+  "short_name": "Matrix",
+  "description": "A customizable, fullscreen Matrix digital-rain experience.",
+  "lang": "en",
+  "dir": "ltr",
+  "start_url": "/?matrix=immersive&app=matrix",
+  "scope": "/",
+  "display": "fullscreen",
+  "orientation": "any",
+  "background_color": "#020503",
+  "theme_color": "#020503",
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "/icons/matrix-app-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/matrix-app-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

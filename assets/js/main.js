@@ -134,28 +134,6 @@
         "https://www.goodreads.com/work/quotes/413869-the-matrix-the-shooting-script",
     },
     {
-      id: "mind",
-      text: "The body cannot live without the mind.",
-      author: "Morpheus — The Matrix",
-      sourceLabel: "Goodreads",
-      sourceURL:
-        "https://www.goodreads.com/work/quotes/413869-the-matrix-the-shooting-script",
-    },
-    {
-      id: "guns",
-      text: "Guns. Lots of guns.",
-      author: "Neo — The Matrix",
-      sourceLabel: "IMDb",
-      sourceURL: "https://www.imdb.com/title/tt0133093/quotes/",
-    },
-    {
-      id: "spoon",
-      text: "There is no spoon.",
-      author: "Spoon Boy — The Matrix",
-      sourceLabel: "IMDb",
-      sourceURL: "https://www.imdb.com/title/tt0133093/quotes/",
-    },
-    {
       id: "bliss",
       text: "Ignorance is bliss.",
       author: "Cypher — The Matrix",
@@ -173,7 +151,9 @@
 
   let matrixCustomQuotes = (() => {
     try {
-      const saved = JSON.parse(localStorage.getItem(matrixCustomQuotesKey) || "[]");
+      const saved = JSON.parse(
+        localStorage.getItem(matrixCustomQuotesKey) || "[]",
+      );
       return Array.isArray(saved)
         ? saved
             .filter(
@@ -375,12 +355,7 @@
         ? settings.randomQuotes
         : matrixDefaults.randomQuotes,
     introDuration: Math.round(
-      clamp(
-        settings.introDuration,
-        5,
-        15,
-        matrixDefaults.introDuration,
-      ),
+      clamp(settings.introDuration, 5, 15, matrixDefaults.introDuration),
     ),
     audioReactive:
       typeof settings.audioReactive === "boolean"
@@ -604,9 +579,7 @@
       const x = index * (barWidth + gap);
       context.fillRect(x, height - barHeight, barWidth, barHeight);
     }
-    matrixAudioFrame = window.requestAnimationFrame(
-      drawMatrixAudioVisualizer,
-    );
+    matrixAudioFrame = window.requestAnimationFrame(drawMatrixAudioVisualizer);
   };
 
   const startMatrixAudioVisualizer = async () => {
@@ -639,9 +612,8 @@
         return;
       }
       matrixAudioContext = new AudioContext();
-      const source = matrixAudioContext.createMediaStreamSource(
-        matrixAudioStream,
-      );
+      const source =
+        matrixAudioContext.createMediaStreamSource(matrixAudioStream);
       matrixAudioAnalyser = matrixAudioContext.createAnalyser();
       matrixAudioAnalyser.fftSize = 256;
       matrixAudioAnalyser.smoothingTimeConstant = 0.82;
@@ -670,8 +642,7 @@
   renderMatrixCustomQuotes();
 
   const syncMatrixOutputs = () => {
-    const signed = (value) =>
-      Number(value).toFixed(2).replace("-", "−");
+    const signed = (value) => Number(value).toFixed(2).replace("-", "−");
     const values = {
       color: matrixControl("color")?.value,
       speed: `${Number(matrixControl("speed")?.value).toFixed(2)}×`,
@@ -727,9 +698,7 @@
     );
     matrixAudioOptions
       ?.querySelectorAll("input")
-      .forEach(
-        (control) => (control.disabled = !matrixSettings.audioReactive),
-      );
+      .forEach((control) => (control.disabled = !matrixSettings.audioReactive));
     syncMatrixOutputs();
   };
 
@@ -775,12 +744,7 @@
     const cursor = hexToRGB(matrixSettings.beaconColor);
     const quality = matrixQuality[matrixSettings.quality];
     const columns = Math.round(
-      clamp(
-        window.innerHeight / matrixSettings.charSize,
-        32,
-        160,
-        80,
-      ),
+      clamp(window.innerHeight / matrixSettings.charSize, 32, 160, 80),
     );
 
     url.search = new URLSearchParams({
@@ -801,18 +765,7 @@
       cursorIntensity: String(matrixSettings.beaconIntensity),
       resolution: String(quality.resolution),
       fps: String(quality.fps),
-      paletteRGB: [
-        0,
-        0,
-        0,
-        0,
-        ...dim,
-        0.45,
-        red,
-        green,
-        blue,
-        1,
-      ].join(","),
+      paletteRGB: [0, 0, 0, 0, ...dim, 0.45, red, green, blue, 1].join(","),
       cursorRGB: cursor.join(","),
       backgroundRGB: "0,0,0",
       suppressWarnings: "true",
@@ -1076,12 +1029,12 @@
     matrixAppDisplay || matrixAppRequested
       ? "immersive"
       : matrixRequested === "ambient"
-      ? "ambient"
-      : matrixRequested !== null
-        ? "immersive"
-        : storedMatrixMode === "on"
+        ? "ambient"
+        : matrixRequested !== null
           ? "immersive"
-          : storedMatrixMode,
+          : storedMatrixMode === "on"
+            ? "immersive"
+            : storedMatrixMode,
     false,
   );
   if (matrixAppDisplay || matrixAppRequested) {
@@ -1095,9 +1048,12 @@
     setTheme(next);
   });
 
-  const preferredThemeQuery = window.matchMedia("(prefers-color-scheme: light)");
+  const preferredThemeQuery = window.matchMedia(
+    "(prefers-color-scheme: light)",
+  );
   preferredThemeQuery.addEventListener?.("change", (event) => {
-    if (!localStorage.getItem("theme")) setTheme(event.matches ? "light" : "dark");
+    if (!localStorage.getItem("theme"))
+      setTheme(event.matches ? "light" : "dark");
   });
 
   menuToggle?.addEventListener("click", () => {
@@ -1105,9 +1061,11 @@
     setSiteNavigation(!siteNavigation?.classList.contains("is-open"));
   });
 
-  siteNavigation?.querySelectorAll("a").forEach((link) =>
-    link.addEventListener("click", () => setSiteNavigation(false)),
-  );
+  siteNavigation
+    ?.querySelectorAll("a")
+    .forEach((link) =>
+      link.addEventListener("click", () => setSiteNavigation(false)),
+    );
 
   let headerFrame;
   const syncHeaderState = () => {
@@ -1128,7 +1086,10 @@
     readingFrame = window.requestAnimationFrame(() => {
       const rect = articleContent.getBoundingClientRect();
       const start = window.scrollY + rect.top - window.innerHeight * 0.25;
-      const distance = Math.max(1, articleContent.offsetHeight - window.innerHeight * 0.55);
+      const distance = Math.max(
+        1,
+        articleContent.offsetHeight - window.innerHeight * 0.55,
+      );
       const progressValue = Math.min(
         1,
         Math.max(0, (window.scrollY - start) / distance),
@@ -1145,9 +1106,7 @@
     syncReadingProgress();
   }
 
-  const sectionLinks = [
-    ...document.querySelectorAll("[data-nav-section]"),
-  ];
+  const sectionLinks = [...document.querySelectorAll("[data-nav-section]")];
   const observedSections = sectionLinks
     .map((link) => document.getElementById(link.dataset.navSection))
     .filter(Boolean);
@@ -1184,14 +1143,18 @@
     setSiteNavigation(false);
     setMatrixModeMenu(matrixModeMenu?.hidden, matrixKeyboardNavigation);
   });
-  document.querySelectorAll("[data-matrix-mode-choice]").forEach((choice) =>
-    choice.addEventListener("click", () =>
-      setMatrixMode(choice.dataset.matrixModeChoice),
-    ),
-  );
-  matrixUI?.querySelectorAll("[data-matrix-close]").forEach((button) =>
-    button.addEventListener("click", () => setMatrixMode("off")),
-  );
+  document
+    .querySelectorAll("[data-matrix-mode-choice]")
+    .forEach((choice) =>
+      choice.addEventListener("click", () =>
+        setMatrixMode(choice.dataset.matrixModeChoice),
+      ),
+    );
+  matrixUI
+    ?.querySelectorAll("[data-matrix-close]")
+    .forEach((button) =>
+      button.addEventListener("click", () => setMatrixMode("off")),
+    );
   matrixSettingsToggles.forEach((button) =>
     button.addEventListener("click", () =>
       setMatrixSettingsOpen(matrixSettingsPanel.hidden),
@@ -1676,7 +1639,8 @@
       playerToggle.setAttribute("title", "Open focus radio");
       syncPlayerClearance();
       sessionStorage.removeItem(playerSessionKey);
-      if ("mediaSession" in navigator) navigator.mediaSession.playbackState = "none";
+      if ("mediaSession" in navigator)
+        navigator.mediaSession.playbackState = "none";
       playerToggle.focus({ preventScroll: true });
     };
 
@@ -1709,24 +1673,30 @@
         minimizePlayer();
       }
     });
-    player.querySelectorAll("[data-player-minimize]").forEach((button) =>
-      button.addEventListener("click", minimizePlayer),
-    );
-    player.querySelectorAll("[data-player-expand]").forEach((button) =>
-      button.addEventListener("click", openPlayer),
-    );
-    player.querySelectorAll("[data-player-close]").forEach((button) =>
-      button.addEventListener("click", stopAndClosePlayer),
-    );
+    player
+      .querySelectorAll("[data-player-minimize]")
+      .forEach((button) => button.addEventListener("click", minimizePlayer));
+    player
+      .querySelectorAll("[data-player-expand]")
+      .forEach((button) => button.addEventListener("click", openPlayer));
+    player
+      .querySelectorAll("[data-player-close]")
+      .forEach((button) =>
+        button.addEventListener("click", stopAndClosePlayer),
+      );
     playButtons.forEach((button) =>
       button.addEventListener("click", togglePlayback),
     );
-    player.querySelectorAll("[data-player-prev]").forEach((button) =>
-      button.addEventListener("click", () => changeEpisode(-1)),
-    );
-    player.querySelectorAll("[data-player-next]").forEach((button) =>
-      button.addEventListener("click", () => changeEpisode(1)),
-    );
+    player
+      .querySelectorAll("[data-player-prev]")
+      .forEach((button) =>
+        button.addEventListener("click", () => changeEpisode(-1)),
+      );
+    player
+      .querySelectorAll("[data-player-next]")
+      .forEach((button) =>
+        button.addEventListener("click", () => changeEpisode(1)),
+      );
     player
       .querySelector("[data-player-rewind]")
       .addEventListener("click", () => {
@@ -1772,13 +1742,16 @@
       sleepMode = sleepSelect.value;
       const minutes = Number(sleepMode);
       if (Number.isFinite(minutes) && minutes > 0) {
-        sleepTimer = window.setTimeout(() => {
-          audio.pause();
-          sleepMode = "off";
-          sleepSelect.value = "off";
-          setStatus("sleep timer complete · paused");
-          persistPlayerSession();
-        }, minutes * 60 * 1000);
+        sleepTimer = window.setTimeout(
+          () => {
+            audio.pause();
+            sleepMode = "off";
+            sleepSelect.value = "off";
+            setStatus("sleep timer complete · paused");
+            persistPlayerSession();
+          },
+          minutes * 60 * 1000,
+        );
         setStatus(`sleep timer · ${minutes} min`);
       } else if (sleepMode === "episode") {
         setStatus("sleep timer · end of episode");
@@ -1835,7 +1808,10 @@
     audio.addEventListener("loadedmetadata", () => {
       if (pendingStartTime > 0) {
         const duration = audio.duration || episodes[episodeIndex].duration;
-        audio.currentTime = Math.min(pendingStartTime, Math.max(0, duration - 1));
+        audio.currentTime = Math.min(
+          pendingStartTime,
+          Math.max(0, duration - 1),
+        );
         pendingStartTime = 0;
       }
       durationNode.textContent = formatTime(

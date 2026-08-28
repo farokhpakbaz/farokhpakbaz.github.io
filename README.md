@@ -24,7 +24,10 @@ license and attribution are included in `static/matrix/`.
 Chrome visitors can install **Matrix Immersive** as a Progressive Web App from
 the Matrix menu. The installed app launches directly into the fullscreen rain
 experience, keeps the existing tuning preferences, and caches its renderer for
-later launches.
+later launches. Its launch ritual fades through a featured Shakespeare passage
+and a small rotation of sourced Matrix excerpts; visitors can disable the
+sequence or add private, browser-local quotes. An optional microphone spectrum
+visualizes nearby audio locally and remains off until a visitor enables it.
 
 ## Run locally
 

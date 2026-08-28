@@ -114,9 +114,16 @@ const makeFullScreenQuad = (regl, uniforms = {}, context = {}) =>
 	`,
 
 		attributes: {
-			aPosition: [-4, -4, 4, -4, 0, 4],
+			aPosition: [
+				[-1, -1],
+				[1, -1],
+				[1, 1],
+				[-1, -1],
+				[1, 1],
+				[-1, 1],
+			],
 		},
-		count: 3,
+		count: 6,
 
 		uniforms: {
 			...uniforms,

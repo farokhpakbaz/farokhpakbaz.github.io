@@ -30,6 +30,32 @@
   const matrixInstallButtons = [
     ...document.querySelectorAll("[data-matrix-install]"),
   ];
+  const matrixIntro = document.querySelector("[data-matrix-intro]");
+  const matrixIntroQuote = document.querySelector("[data-matrix-intro-quote]");
+  const matrixIntroAuthor = document.querySelector(
+    "[data-matrix-intro-author]",
+  );
+  const matrixIntroSource = document.querySelector(
+    "[data-matrix-intro-source]",
+  );
+  const matrixIntroCounter = document.querySelector(
+    "[data-matrix-intro-counter]",
+  );
+  const matrixAudioCanvas = document.querySelector(
+    "[data-matrix-audio-spectrum]",
+  );
+  const matrixAudioOptions = document.querySelector(
+    "[data-matrix-audio-options]",
+  );
+  const matrixCustomQuoteInput = document.querySelector(
+    "[data-matrix-custom-quote]",
+  );
+  const matrixCustomAuthorInput = document.querySelector(
+    "[data-matrix-custom-author]",
+  );
+  const matrixCustomQuoteList = document.querySelector(
+    "[data-matrix-custom-list]",
+  );
   const matrixSettingsToggles = [
     ...document.querySelectorAll("[data-matrix-settings-toggle]"),
   ];
@@ -39,6 +65,8 @@
   const focusPlayerPanel = document.querySelector("[data-player]");
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   const matrixStorageKey = "matrix-settings-v1";
+  const matrixCustomQuotesKey = "matrix-custom-quotes-v1";
+  const matrixIntroSeenKey = "matrix-intro-seen-v1";
   let matrixMode = "off";
   let matrixLastMode = "ambient";
   let matrixIdleTimer;
@@ -47,6 +75,13 @@
   let matrixKeyboardNavigation = false;
   let matrixLastFocus;
   let matrixInstallPrompt;
+  let matrixIntroTimer;
+  let matrixIntroHideTimer;
+  let matrixAudioStream;
+  let matrixAudioContext;
+  let matrixAudioAnalyser;
+  let matrixAudioData;
+  let matrixAudioFrame;
 
   const matrixAppDisplay = ["fullscreen", "standalone", "minimal-ui"].some(
     (mode) => window.matchMedia(`(display-mode: ${mode})`).matches,
@@ -57,6 +92,83 @@
       button.hidden = matrixAppDisplay || !matrixInstallPrompt;
     });
   };
+
+  const matrixQuotes = [
+    {
+      id: "macbeth-shadow",
+      text: "Life's but a walking shadow, a poor player,\nThat struts and frets his hour upon the stage,\nAnd then is heard no more. It is a tale\nTold by an idiot, full of sound and fury,\nSignifying nothing.",
+      author: "William Shakespeare, Macbeth",
+      sourceLabel: "Macbeth",
+    },
+    {
+      id: "path",
+      text: "There's a difference between knowing the path and walking the path.",
+      author: "Morpheus — The Matrix",
+      sourceLabel: "Goodreads",
+      sourceURL:
+        "https://www.goodreads.com/work/quotes/413869-the-matrix-the-shooting-script",
+    },
+    {
+      id: "desert",
+      text: "Welcome to the desert of the real.",
+      author: "Morpheus — The Matrix",
+      sourceLabel: "Goodreads",
+      sourceURL:
+        "https://www.goodreads.com/work/quotes/413869-the-matrix-the-shooting-script",
+    },
+    {
+      id: "mind",
+      text: "The body cannot live without the mind.",
+      author: "Morpheus — The Matrix",
+      sourceLabel: "Goodreads",
+      sourceURL:
+        "https://www.goodreads.com/work/quotes/413869-the-matrix-the-shooting-script",
+    },
+    {
+      id: "guns",
+      text: "Guns. Lots of guns.",
+      author: "Neo — The Matrix",
+      sourceLabel: "IMDb",
+      sourceURL: "https://www.imdb.com/title/tt0133093/quotes/",
+    },
+    {
+      id: "spoon",
+      text: "There is no spoon.",
+      author: "Spoon Boy — The Matrix",
+      sourceLabel: "IMDb",
+      sourceURL: "https://www.imdb.com/title/tt0133093/quotes/",
+    },
+    {
+      id: "bliss",
+      text: "Ignorance is bliss.",
+      author: "Cypher — The Matrix",
+      sourceLabel: "IMDb",
+      sourceURL: "https://www.imdb.com/title/tt0133093/quotes/",
+    },
+    {
+      id: "eyes",
+      text: "Why do my eyes hurt?\nYou've never used them before.",
+      author: "Neo / Morpheus — The Matrix",
+      sourceLabel: "IMDb",
+      sourceURL: "https://www.imdb.com/title/tt0133093/quotes/",
+    },
+  ];
+
+  let matrixCustomQuotes = (() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(matrixCustomQuotesKey) || "[]");
+      return Array.isArray(saved)
+        ? saved
+            .filter(
+              (quote) =>
+                typeof quote?.text === "string" && quote.text.trim().length,
+            )
+            .slice(0, 30)
+        : [];
+    } catch {
+      return [];
+    }
+  })();
 
   const matrixPresets = {
     trilogy: {
@@ -156,6 +268,11 @@
     scanlines: true,
     animate: !reducedMotion.matches,
     autoHide: true,
+    quotesEnabled: true,
+    randomQuotes: true,
+    introDuration: 9,
+    audioReactive: false,
+    audioSensitivity: 1.2,
   };
 
   const clamp = (value, min, max, fallback = min) => {
@@ -232,6 +349,32 @@
       typeof settings.autoHide === "boolean"
         ? settings.autoHide
         : matrixDefaults.autoHide,
+    quotesEnabled:
+      typeof settings.quotesEnabled === "boolean"
+        ? settings.quotesEnabled
+        : matrixDefaults.quotesEnabled,
+    randomQuotes:
+      typeof settings.randomQuotes === "boolean"
+        ? settings.randomQuotes
+        : matrixDefaults.randomQuotes,
+    introDuration: Math.round(
+      clamp(
+        settings.introDuration,
+        5,
+        15,
+        matrixDefaults.introDuration,
+      ),
+    ),
+    audioReactive:
+      typeof settings.audioReactive === "boolean"
+        ? settings.audioReactive
+        : matrixDefaults.audioReactive,
+    audioSensitivity: clamp(
+      settings.audioSensitivity,
+      0.5,
+      3,
+      matrixDefaults.audioSensitivity,
+    ),
   });
 
   let matrixSettings = (() => {
@@ -254,6 +397,260 @@
   const saveMatrixSettings = () => {
     localStorage.setItem(matrixStorageKey, JSON.stringify(matrixSettings));
   };
+
+  const saveMatrixCustomQuotes = () => {
+    localStorage.setItem(
+      matrixCustomQuotesKey,
+      JSON.stringify(matrixCustomQuotes),
+    );
+  };
+
+  const renderMatrixCustomQuotes = () => {
+    if (!matrixCustomQuoteList) return;
+    matrixCustomQuoteList.replaceChildren();
+    matrixCustomQuotes.forEach((quote) => {
+      const item = document.createElement("li");
+      const summary = document.createElement("span");
+      const remove = document.createElement("button");
+      summary.textContent = `${quote.text} — ${quote.author || "anonymous"}`;
+      summary.title = summary.textContent;
+      remove.type = "button";
+      remove.textContent = "remove";
+      remove.setAttribute("aria-label", `Remove quote: ${quote.text}`);
+      remove.addEventListener("click", () => {
+        matrixCustomQuotes = matrixCustomQuotes.filter(
+          (candidate) => candidate.id !== quote.id,
+        );
+        saveMatrixCustomQuotes();
+        renderMatrixCustomQuotes();
+      });
+      item.append(summary, remove);
+      matrixCustomQuoteList.append(item);
+    });
+  };
+
+  matrixSettingsPanel
+    ?.querySelector("[data-matrix-custom-add]")
+    ?.addEventListener("click", () => {
+      const text = matrixCustomQuoteInput?.value.trim();
+      const author = matrixCustomAuthorInput?.value.trim();
+      if (!text) {
+        matrixCustomQuoteInput?.focus();
+        setMatrixStatus("enter a quote before adding it");
+        return;
+      }
+      matrixCustomQuotes.push({
+        id: globalThis.crypto?.randomUUID?.() || `${Date.now()}`,
+        text: text.slice(0, 500),
+        author: (author || "Your library").slice(0, 80),
+        sourceLabel: "Your library",
+      });
+      matrixCustomQuotes = matrixCustomQuotes.slice(-30);
+      saveMatrixCustomQuotes();
+      renderMatrixCustomQuotes();
+      matrixCustomQuoteInput.value = "";
+      matrixCustomAuthorInput.value = "";
+      setMatrixStatus("quote added to the local rotation");
+    });
+
+  const chooseMatrixIntroQuote = () => {
+    const firstLaunch = !localStorage.getItem(matrixIntroSeenKey);
+    if (firstLaunch || !matrixSettings.randomQuotes) return matrixQuotes[0];
+    const pool = [...matrixQuotes, ...matrixCustomQuotes];
+    const randomValues = new Uint32Array(1);
+    globalThis.crypto?.getRandomValues?.(randomValues);
+    const randomIndex = globalThis.crypto?.getRandomValues
+      ? randomValues[0] % pool.length
+      : Math.floor(Math.random() * pool.length);
+    return pool[randomIndex];
+  };
+
+  const hideMatrixIntro = () => {
+    window.clearTimeout(matrixIntroTimer);
+    window.clearTimeout(matrixIntroHideTimer);
+    if (!matrixIntro || matrixIntro.hidden) return;
+    matrixIntro.classList.remove("is-visible");
+    matrixIntro.classList.add("is-leaving");
+    matrixIntroHideTimer = window.setTimeout(
+      () => {
+        matrixIntro.hidden = true;
+        matrixIntro.classList.remove("is-leaving");
+        matrixUI?.classList.remove("has-intro");
+        matrixUI?.focus({ preventScroll: true });
+        scheduleMatrixIdle();
+      },
+      reducedMotion.matches ? 20 : 920,
+    );
+  };
+
+  const showMatrixIntro = () => {
+    if (!matrixIntro || !matrixSettings.quotesEnabled) return;
+    const quote = chooseMatrixIntroQuote();
+    const quoteIndex = Math.max(
+      0,
+      [...matrixQuotes, ...matrixCustomQuotes].findIndex(
+        (candidate) => candidate.id === quote.id,
+      ),
+    );
+    matrixIntroQuote.textContent = quote.text;
+    matrixIntroAuthor.textContent = `— ${quote.author}`;
+    matrixIntroCounter.textContent = String(quoteIndex + 1).padStart(2, "0");
+    if (quote.sourceURL) {
+      matrixIntroSource.href = quote.sourceURL;
+      matrixIntroSource.textContent = quote.sourceLabel || "source";
+      matrixIntroSource.hidden = false;
+    } else {
+      matrixIntroSource.hidden = true;
+      matrixIntroSource.removeAttribute("href");
+    }
+    matrixIntro.style.setProperty(
+      "--matrix-intro-duration",
+      `${matrixSettings.introDuration}s`,
+    );
+    window.clearTimeout(matrixIdleTimer);
+    root.classList.remove("matrix-controls-idle");
+    matrixUI?.classList.remove("is-idle");
+    matrixUI?.classList.add("has-intro");
+    matrixIntro.hidden = false;
+    matrixIntro.classList.remove("is-leaving", "is-visible");
+    window.requestAnimationFrame(() => {
+      matrixIntro.classList.add("is-visible");
+      matrixIntro
+        .querySelector("[data-matrix-intro-skip]")
+        ?.focus({ preventScroll: true });
+    });
+    localStorage.setItem(matrixIntroSeenKey, "true");
+    matrixIntroTimer = window.setTimeout(
+      hideMatrixIntro,
+      matrixSettings.introDuration * 1000,
+    );
+  };
+
+  matrixIntro
+    ?.querySelector("[data-matrix-intro-skip]")
+    ?.addEventListener("click", hideMatrixIntro);
+
+  const stopMatrixAudioVisualizer = () => {
+    window.cancelAnimationFrame(matrixAudioFrame);
+    matrixAudioFrame = undefined;
+    matrixAudioStream?.getTracks().forEach((track) => track.stop());
+    matrixAudioStream = undefined;
+    matrixAudioAnalyser = undefined;
+    matrixAudioData = undefined;
+    matrixAudioContext?.close().catch(() => {});
+    matrixAudioContext = undefined;
+    if (matrixAudioCanvas) matrixAudioCanvas.hidden = true;
+  };
+
+  const drawMatrixAudioVisualizer = () => {
+    if (!matrixAudioCanvas || !matrixAudioAnalyser || !matrixAudioData) return;
+    const context = matrixAudioCanvas.getContext("2d");
+    if (!context) return;
+    const rect = matrixAudioCanvas.getBoundingClientRect();
+    const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+    const width = Math.max(1, Math.round(rect.width));
+    const height = Math.max(1, Math.round(rect.height));
+    if (
+      matrixAudioCanvas.width !== Math.round(width * pixelRatio) ||
+      matrixAudioCanvas.height !== Math.round(height * pixelRatio)
+    ) {
+      matrixAudioCanvas.width = Math.round(width * pixelRatio);
+      matrixAudioCanvas.height = Math.round(height * pixelRatio);
+    }
+    context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+    context.clearRect(0, 0, width, height);
+    matrixAudioAnalyser.getByteFrequencyData(matrixAudioData);
+
+    const [red, green, blue] = matrixSettings.color
+      .slice(1)
+      .match(/.{2}/g)
+      .map((part) => Number.parseInt(part, 16));
+    const bars = Math.max(24, Math.min(72, Math.floor(width / 10)));
+    const gap = 3;
+    const barWidth = Math.max(2, (width - gap * (bars - 1)) / bars);
+    context.fillStyle = `rgba(${red}, ${green}, ${blue}, 0.82)`;
+    context.shadowColor = `rgba(${red}, ${green}, ${blue}, 0.38)`;
+    context.shadowBlur = 7;
+
+    for (let index = 0; index < bars; index += 1) {
+      const distance = Math.abs(index - (bars - 1) / 2) / (bars / 2);
+      const frequencyIndex = Math.min(
+        matrixAudioData.length - 1,
+        Math.floor(Math.pow(distance, 1.45) * matrixAudioData.length * 0.72),
+      );
+      const level = Math.min(
+        1,
+        (matrixAudioData[frequencyIndex] / 255) *
+          matrixSettings.audioSensitivity,
+      );
+      const barHeight = Math.max(1, Math.pow(level, 1.35) * height * 0.92);
+      const x = index * (barWidth + gap);
+      context.fillRect(x, height - barHeight, barWidth, barHeight);
+    }
+    matrixAudioFrame = window.requestAnimationFrame(
+      drawMatrixAudioVisualizer,
+    );
+  };
+
+  const startMatrixAudioVisualizer = async () => {
+    if (!matrixAudioCanvas || matrixMode !== "immersive") return;
+    if (matrixAudioAnalyser) {
+      matrixAudioCanvas.hidden = false;
+      matrixAudioContext?.resume().catch(() => {});
+      if (!matrixAudioFrame) drawMatrixAudioVisualizer();
+      return;
+    }
+    if (!navigator.mediaDevices?.getUserMedia) {
+      matrixSettings.audioReactive = false;
+      syncMatrixControls();
+      saveMatrixSettings();
+      setMatrixStatus("microphone visualization is unavailable");
+      return;
+    }
+    try {
+      matrixAudioStream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          autoGainControl: false,
+          echoCancellation: false,
+          noiseSuppression: false,
+        },
+        video: false,
+      });
+      if (!matrixSettings.audioReactive || matrixMode !== "immersive") {
+        matrixAudioStream.getTracks().forEach((track) => track.stop());
+        matrixAudioStream = undefined;
+        return;
+      }
+      matrixAudioContext = new AudioContext();
+      const source = matrixAudioContext.createMediaStreamSource(
+        matrixAudioStream,
+      );
+      matrixAudioAnalyser = matrixAudioContext.createAnalyser();
+      matrixAudioAnalyser.fftSize = 256;
+      matrixAudioAnalyser.smoothingTimeConstant = 0.82;
+      matrixAudioData = new Uint8Array(matrixAudioAnalyser.frequencyBinCount);
+      source.connect(matrixAudioAnalyser);
+      matrixAudioCanvas.hidden = false;
+      drawMatrixAudioVisualizer();
+      setMatrixStatus("microphone spectrum · processed locally");
+    } catch {
+      stopMatrixAudioVisualizer();
+      matrixSettings.audioReactive = false;
+      syncMatrixControls();
+      saveMatrixSettings();
+      setMatrixStatus("microphone permission was not granted");
+    }
+  };
+
+  const syncMatrixAudioVisualizer = () => {
+    if (matrixSettings.audioReactive && matrixMode === "immersive") {
+      startMatrixAudioVisualizer();
+    } else {
+      stopMatrixAudioVisualizer();
+    }
+  };
+
+  renderMatrixCustomQuotes();
 
   const syncMatrixOutputs = () => {
     const signed = (value) =>
@@ -279,6 +676,10 @@
       vignette: `${Math.round(
         Number(matrixControl("vignette")?.value) * 100,
       )}%`,
+      introDuration: `${matrixControl("introDuration")?.value} sec`,
+      audioSensitivity: `${Number(
+        matrixControl("audioSensitivity")?.value,
+      ).toFixed(1)}×`,
     };
 
     Object.entries(values).forEach(([name, value]) => {
@@ -303,6 +704,15 @@
     beaconOptions
       ?.querySelectorAll("input")
       .forEach((control) => (control.disabled = !matrixSettings.beacon));
+    matrixAudioOptions?.classList.toggle(
+      "is-disabled",
+      !matrixSettings.audioReactive,
+    );
+    matrixAudioOptions
+      ?.querySelectorAll("input")
+      .forEach(
+        (control) => (control.disabled = !matrixSettings.audioReactive),
+      );
     syncMatrixOutputs();
   };
 
@@ -328,6 +738,11 @@
       scanlines: matrixControl("scanlines")?.checked,
       animate: matrixControl("animate")?.checked,
       autoHide: matrixControl("autoHide")?.checked,
+      quotesEnabled: matrixControl("quotesEnabled")?.checked,
+      randomQuotes: matrixControl("randomQuotes")?.checked,
+      introDuration: matrixControl("introDuration")?.value,
+      audioReactive: matrixControl("audioReactive")?.checked,
+      audioSensitivity: matrixControl("audioSensitivity")?.value,
     });
 
   const hexToRGB = (hex) =>
@@ -441,7 +856,8 @@
     if (
       matrixMode !== "off" &&
       matrixSettings.autoHide &&
-      matrixSettingsPanel?.hidden
+      matrixSettingsPanel?.hidden &&
+      matrixIntro?.hidden !== false
     ) {
       matrixIdleTimer = window.setTimeout(() => {
         if (
@@ -608,6 +1024,9 @@
       }
     }
 
+    if (!immersive) hideMatrixIntro();
+    syncMatrixAudioVisualizer();
+
     document.querySelectorAll("[data-matrix-mode-choice]").forEach((choice) => {
       const selected = choice.dataset.matrixModeChoice === matrixMode;
       choice.classList.toggle("is-current", selected);
@@ -648,6 +1067,9 @@
           : storedMatrixMode,
     false,
   );
+  if (matrixAppDisplay || matrixAppRequested) {
+    window.setTimeout(showMatrixIntro, reducedMotion.matches ? 20 : 420);
+  }
 
   toggle?.addEventListener("click", () => {
     const next = root.dataset.theme === "dark" ? "light" : "dark";
@@ -692,6 +1114,7 @@
       syncMatrixControls();
       saveMatrixSettings();
       loadMatrix();
+      syncMatrixAudioVisualizer();
       scheduleMatrixIdle();
     });
 
@@ -729,6 +1152,11 @@
           "beacon",
           "beaconColor",
           "beaconIntensity",
+          "quotesEnabled",
+          "randomQuotes",
+          "introDuration",
+          "audioReactive",
+          "audioSensitivity",
         ].includes(setting)
       ) {
         matrixSettings.preset = "custom";
@@ -738,7 +1166,21 @@
 
     syncMatrixControls();
     saveMatrixSettings();
-    loadMatrix();
+    if (setting === "audioReactive") syncMatrixAudioVisualizer();
+    if (setting === "quotesEnabled" && !matrixSettings.quotesEnabled) {
+      hideMatrixIntro();
+    }
+    if (
+      ![
+        "quotesEnabled",
+        "randomQuotes",
+        "introDuration",
+        "audioReactive",
+        "audioSensitivity",
+      ].includes(setting)
+    ) {
+      loadMatrix();
+    }
     scheduleMatrixIdle();
   });
 
@@ -778,6 +1220,12 @@
       event.target.tagName,
     );
 
+    if (matrixIntro?.hidden === false && event.key === "Escape") {
+      event.preventDefault();
+      hideMatrixIntro();
+      return;
+    }
+
     if (event.key === "Escape" && !matrixModeMenu?.hidden) {
       event.preventDefault();
       setMatrixModeMenu(false);
@@ -816,12 +1264,12 @@
     if (event.key === "Escape") {
       event.preventDefault();
       if (!matrixSettingsPanel.hidden) setMatrixSettingsOpen(false);
-      else setMatrixMode("off");
+      else if (!(matrixAppDisplay || matrixAppRequested)) setMatrixMode("off");
       return;
     }
     if (!isFormControl && event.key.toLowerCase() === "m") {
       event.preventDefault();
-      setMatrixMode("off");
+      if (!(matrixAppDisplay || matrixAppRequested)) setMatrixMode("off");
       return;
     }
     if (!isFormControl && event.key.toLowerCase() === "s") {
@@ -863,6 +1311,14 @@
       if (matrixMode !== "off") loadMatrix();
     } else if (matrixMode !== "off" && matrixSettings.animate) {
       loadMatrix();
+    }
+  });
+
+  document.addEventListener("visibilitychange", () => {
+    if (!matrixAudioContext) return;
+    if (document.hidden) matrixAudioContext.suspend().catch(() => {});
+    else if (matrixSettings.audioReactive && matrixMode === "immersive") {
+      matrixAudioContext.resume().catch(() => {});
     }
   });
 

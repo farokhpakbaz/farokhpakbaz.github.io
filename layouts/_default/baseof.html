@@ -55,6 +55,29 @@
   </div>
 
   <section class="matrix-ui" data-matrix-ui hidden tabindex="-1">
+      <section class="matrix-intro" data-matrix-intro hidden aria-label="Matrix launch quote">
+        <div class="matrix-intro__frame">
+          <div class="matrix-intro__terminal" aria-hidden="true">
+            <span>construct / boot</span>
+            <span data-matrix-intro-counter>01</span>
+          </div>
+          <blockquote>
+            <p data-matrix-intro-quote></p>
+            <footer>
+              <cite data-matrix-intro-author></cite>
+              <a data-matrix-intro-source target="_blank" rel="noopener" hidden></a>
+            </footer>
+          </blockquote>
+          <div class="matrix-intro__footer">
+            <span>signal acquired</span>
+            <button type="button" data-matrix-intro-skip>enter the construct <i aria-hidden="true">→</i></button>
+          </div>
+          <i class="matrix-intro__progress" data-matrix-intro-progress aria-hidden="true"></i>
+        </div>
+      </section>
+
+      <canvas class="matrix-audio-spectrum" data-matrix-audio-spectrum hidden aria-hidden="true"></canvas>
+
       <div class="matrix-toolbar" data-matrix-toolbar>
         <div class="matrix-toolbar__identity">
           <span class="matrix-mark" aria-hidden="true">01</span>
@@ -233,6 +256,57 @@
             <span><strong>Auto-hide controls</strong><small>Immersive mode only.</small></span>
             <input type="checkbox" data-matrix-setting="autoHide" checked>
           </label>
+        </div>
+
+        <div class="matrix-settings__divider"><span>launch ritual</span></div>
+        <div class="matrix-switches">
+          <label class="matrix-switch matrix-switch--featured">
+            <span><strong>Launch quotes</strong><small>Fade a quote in and out when the Matrix app starts.</small></span>
+            <input type="checkbox" data-matrix-setting="quotesEnabled" checked>
+          </label>
+          <label class="matrix-switch">
+            <span><strong>Randomize library</strong><small>Mix short sourced excerpts with your own quotes.</small></span>
+            <input type="checkbox" data-matrix-setting="randomQuotes" checked>
+          </label>
+        </div>
+        <label class="matrix-field">
+          <span>Quote duration</span>
+          <input type="range" min="5" max="15" step="1" value="9" data-matrix-setting="introDuration">
+          <output data-matrix-output="introDuration">9 sec</output>
+        </label>
+
+        <div class="matrix-quote-editor" data-matrix-quote-editor>
+          <p><strong>Your quote library</strong><small>Stored only in this browser.</small></p>
+          <label>
+            <span>Quote</span>
+            <textarea rows="4" maxlength="500" data-matrix-custom-quote placeholder="Write or paste your quote…"></textarea>
+          </label>
+          <label>
+            <span>Attribution</span>
+            <input type="text" maxlength="80" data-matrix-custom-author placeholder="Author or source">
+          </label>
+          <button type="button" data-matrix-custom-add>add to rotation</button>
+          <ul data-matrix-custom-list aria-label="Custom Matrix quotes"></ul>
+          <small class="matrix-quote-editor__sources">
+            Short excerpts sourced from
+            <a href="https://www.goodreads.com/work/quotes/413869-the-matrix-the-shooting-script" target="_blank" rel="noopener">Goodreads</a>
+            and
+            <a href="https://www.imdb.com/title/tt0133093/quotes/" target="_blank" rel="noopener">IMDb</a>.
+          </small>
+        </div>
+
+        <div class="matrix-settings__divider"><span>audio signal</span></div>
+        <label class="matrix-switch matrix-switch--featured">
+          <span><strong>Microphone spectrum</strong><small>Visualizes nearby audio locally; never recorded or uploaded.</small></span>
+          <input type="checkbox" data-matrix-setting="audioReactive">
+        </label>
+        <div class="matrix-audio-options" data-matrix-audio-options>
+          <label class="matrix-field">
+            <span>Sensitivity</span>
+            <input type="range" min="0.5" max="3" step="0.1" value="1.2" data-matrix-setting="audioSensitivity">
+            <output data-matrix-output="audioSensitivity">1.2×</output>
+          </label>
+          <p>Chrome will ask for microphone permission only when this is enabled.</p>
         </div>
 
         <div class="matrix-settings__footer">

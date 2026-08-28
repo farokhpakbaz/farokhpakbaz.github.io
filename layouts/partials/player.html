@@ -7,7 +7,7 @@
   aria-label="musicForProgramming focus player"
 >
   <div class="player-titlebar">
-    <p><span>musicForProgramming</span>(<q>focus</q>);</p>
+    <p><span>focus radio</span><small>background playback</small></p>
     <div class="player-titlebar__actions">
       <button type="button" data-player-minimize aria-label="Minimize focus radio" title="Minimize">−</button>
       <button type="button" data-player-close aria-label="Stop and close focus radio" title="Stop and close">×</button>
@@ -37,9 +37,9 @@
     <div class="visualizer" data-visualizer aria-hidden="true">
       {{ range seq 28 }}<i></i>{{ end }}
     </div>
-    <p class="player-kicker">NOW STREAMING</p>
+    <p class="player-kicker"><span>NOW STREAMING</span><span data-player-episode-position>01 / {{ len $episodes }}</span></p>
     <p class="player-title" data-player-title>{{ (index $episodes 0).title }}</p>
-    <p class="player-status" data-player-status>ready when you are</p>
+    <p class="player-status" data-player-status aria-live="polite">ready when you are</p>
   </div>
 
   <label class="episode-picker">
@@ -81,6 +81,7 @@
       max="1000"
       value="0"
       aria-label="Playback position"
+      aria-valuetext="00:00 of --:--"
     />
     <span data-duration>--:--</span>
   </div>
@@ -109,8 +110,8 @@
         </select>
       </label>
     </div>
-    <a href="https://musicforprogramming.net" target="_blank" rel="noopener"
-      >source: musicforprogramming.net ↗</a
+    <a href="{{ (index $episodes 0).page }}" data-player-source target="_blank" rel="noopener"
+      >episode source ↗</a
     >
   </div>
 

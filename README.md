@@ -2,6 +2,12 @@
 
 A small personal portfolio built with Hugo. Its visual language is inspired by the focused, code-editor-like atmosphere of musicForProgramming while using an original layout and interaction system.
 
+The framework-free site shell includes a responsive disclosure menu,
+section-aware navigation, keyboard-friendly controls, persistent theme state,
+and reading progress with an on-page outline for longer articles. The interface
+keeps its terminal character while maintaining conventional navigation and
+clear action hierarchy.
+
 The optional **focus radio** streams recent mixes directly from
 musicForProgramming. Hugo refreshes its episode list from the source RSS feed
 at build time, with a local fallback for offline or unavailable builds. Audio is

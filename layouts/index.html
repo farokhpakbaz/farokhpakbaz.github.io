@@ -7,7 +7,15 @@
       <h1 id="intro-title">{{ site.Params.displayName }}<span class="cursor" aria-hidden="true"></span></h1>
       <p class="hero-name">{{ site.Params.name }}</p>
       <p class="lede">I engineer <em>reliable, scalable infrastructure</em>—from Linux, networks, and storage to Kubernetes, automation, observability, and CI/CD.</p>
-      <p class="hero-command"><span aria-hidden="true">$</span> automate --repeatable --observable --safe</p>
+      <div class="hero-actions">
+        <a class="button button--primary" href="#work">explore my work <span aria-hidden="true">↓</span></a>
+        <a class="button button--quiet" href="{{ "about/" | relURL }}">operator profile <span aria-hidden="true">→</span></a>
+      </div>
+      <dl class="hero-signals" aria-label="Engineering approach">
+        <div><dt>foundation</dt><dd>Linux-first</dd></div>
+        <div><dt>scope</dt><dd>platform → data</dd></div>
+        <div><dt>method</dt><dd>automate → observe</dd></div>
+      </dl>
     </div>
     <div class="identity-card" aria-label="Profile details">
       <div class="line"><span class="line-number">01</span><span><b>kind</b><i>:</i> Engineer</span></div>
@@ -43,24 +51,24 @@
       <span class="project-tags"><span>Kubernetes</span><span>Bash</span><span>containerd</span></span>
       <span class="project-arrow" aria-hidden="true">↗</span>
     </a>
-    <div class="project-row">
+    <article class="project-row project-row--capability">
       <span class="project-number">02</span>
       <span class="project-main">
         <strong>Infrastructure as code & automation</strong>
         <small>Turning provisioning, configuration, and operational procedures into repeatable workflows.</small>
       </span>
       <span class="project-tags"><span>Terraform</span><span>Ansible</span><span>Python</span><span>Go</span></span>
-      <span class="project-arrow" aria-hidden="true">+</span>
-    </div>
-    <div class="project-row">
+      <span class="project-type">capability</span>
+    </article>
+    <article class="project-row project-row--capability">
       <span class="project-number">03</span>
       <span class="project-main">
         <strong>Linux systems & infrastructure</strong>
         <small>Administration and troubleshooting across compute, networking, storage, and virtualized environments.</small>
       </span>
       <span class="project-tags"><span>Linux</span><span>Network</span><span>Storage</span><span>Virtualization</span></span>
-      <span class="project-arrow" aria-hidden="true">+</span>
-    </div>
+      <span class="project-type">capability</span>
+    </article>
     <a class="project-row" href="{{ site.Params.github }}" target="_blank" rel="noopener">
       <span class="project-number">04</span>
       <span class="project-main">
@@ -178,6 +186,9 @@
 <section class="contact" aria-labelledby="contact-title">
   <p class="code-comment">// automate the routine · observe the important · document the dangerous</p>
   <h2 id="contact-title">Let’s make production<br><em>predictable.</em></h2>
-  <a class="contact-link" href="{{ site.Params.linkedin }}" target="_blank" rel="me noopener">connect on LinkedIn <span aria-hidden="true">↗</span></a>
+  <div class="contact-actions">
+    <a class="contact-link" href="{{ site.Params.linkedin }}" target="_blank" rel="me noopener">connect on LinkedIn <span aria-hidden="true">↗</span></a>
+    <a class="contact-link contact-link--quiet" href="{{ site.Params.github }}" target="_blank" rel="me noopener">inspect GitHub <span aria-hidden="true">↗</span></a>
+  </div>
 </section>
 {{ end }}

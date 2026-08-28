@@ -1,6 +1,11 @@
 (() => {
   const root = document.documentElement;
   const toggle = document.querySelector(".theme-toggle");
+  const themeLabel = document.querySelector("[data-theme-label]");
+  const themeIcon = toggle?.querySelector(".theme-icon");
+  const siteHeader = document.querySelector("[data-site-header]");
+  const siteNavigation = document.querySelector("[data-site-navigation]");
+  const menuToggle = document.querySelector("[data-menu-toggle]");
   const storedTheme = localStorage.getItem("theme");
   const preferredTheme = window.matchMedia("(prefers-color-scheme: light)")
     .matches
@@ -10,13 +15,25 @@
   const setTheme = (theme) => {
     root.dataset.theme = theme;
     root.style.colorScheme = theme;
-    toggle?.setAttribute(
-      "aria-label",
-      `Switch to ${theme === "dark" ? "light" : "dark"} theme`,
-    );
+    const nextTheme = theme === "dark" ? "light" : "dark";
+    toggle?.setAttribute("aria-label", `Switch to ${nextTheme} theme`);
+    toggle?.setAttribute("title", `Switch to ${nextTheme} theme`);
+    if (themeLabel) themeLabel.textContent = nextTheme;
+    if (themeIcon) themeIcon.textContent = theme === "dark" ? "☼" : "☾";
     document
       .querySelector('meta[name="theme-color"]')
-      ?.setAttribute("content", theme === "dark" ? "#0a0c0b" : "#eceee8");
+      ?.setAttribute("content", theme === "dark" ? "#080b09" : "#eceee8");
+  };
+
+  const setSiteNavigation = (open, restoreFocus = false) => {
+    if (!siteNavigation || !menuToggle) return;
+    siteNavigation.classList.toggle("is-open", open);
+    menuToggle.setAttribute("aria-expanded", String(open));
+    const menuLabel = menuToggle.querySelector(".sr-only");
+    if (menuLabel)
+      menuLabel.textContent = open ? "Close navigation" : "Open navigation";
+    if (open) siteNavigation.querySelector("a")?.focus({ preventScroll: true });
+    else if (restoreFocus) menuToggle.focus({ preventScroll: true });
   };
 
   const matrixToggle = document.querySelector("[data-matrix-toggle]");
@@ -1078,9 +1095,95 @@
     setTheme(next);
   });
 
-  matrixToggle?.addEventListener("click", () =>
-    setMatrixModeMenu(matrixModeMenu?.hidden, matrixKeyboardNavigation),
+  const preferredThemeQuery = window.matchMedia("(prefers-color-scheme: light)");
+  preferredThemeQuery.addEventListener?.("change", (event) => {
+    if (!localStorage.getItem("theme")) setTheme(event.matches ? "light" : "dark");
+  });
+
+  menuToggle?.addEventListener("click", () => {
+    setMatrixModeMenu(false);
+    setSiteNavigation(!siteNavigation?.classList.contains("is-open"));
+  });
+
+  siteNavigation?.querySelectorAll("a").forEach((link) =>
+    link.addEventListener("click", () => setSiteNavigation(false)),
   );
+
+  let headerFrame;
+  const syncHeaderState = () => {
+    window.cancelAnimationFrame(headerFrame);
+    headerFrame = window.requestAnimationFrame(() => {
+      siteHeader?.classList.toggle("is-scrolled", window.scrollY > 12);
+    });
+  };
+  window.addEventListener("scroll", syncHeaderState, { passive: true });
+  syncHeaderState();
+
+  const articleContent = document.querySelector("[data-article-content]");
+  const readingProgress = document.querySelector("[data-reading-progress]");
+  let readingFrame;
+  const syncReadingProgress = () => {
+    if (!articleContent || !readingProgress) return;
+    window.cancelAnimationFrame(readingFrame);
+    readingFrame = window.requestAnimationFrame(() => {
+      const rect = articleContent.getBoundingClientRect();
+      const start = window.scrollY + rect.top - window.innerHeight * 0.25;
+      const distance = Math.max(1, articleContent.offsetHeight - window.innerHeight * 0.55);
+      const progressValue = Math.min(
+        1,
+        Math.max(0, (window.scrollY - start) / distance),
+      );
+      readingProgress.style.setProperty(
+        "--reading-progress",
+        `${Math.round(progressValue * 100)}%`,
+      );
+    });
+  };
+  if (articleContent) {
+    window.addEventListener("scroll", syncReadingProgress, { passive: true });
+    window.addEventListener("resize", syncReadingProgress);
+    syncReadingProgress();
+  }
+
+  const sectionLinks = [
+    ...document.querySelectorAll("[data-nav-section]"),
+  ];
+  const observedSections = sectionLinks
+    .map((link) => document.getElementById(link.dataset.navSection))
+    .filter(Boolean);
+  if ("IntersectionObserver" in window && observedSections.length) {
+    const visibleSections = new Map();
+    const syncCurrentSection = () => {
+      const current = [...visibleSections.entries()]
+        .filter(([, visible]) => visible)
+        .map(([section]) => section)
+        .sort(
+          (first, second) =>
+            Math.abs(first.getBoundingClientRect().top) -
+            Math.abs(second.getBoundingClientRect().top),
+        )[0];
+      sectionLinks.forEach((link) => {
+        if (current?.id === link.dataset.navSection)
+          link.setAttribute("aria-current", "location");
+        else link.removeAttribute("aria-current");
+      });
+    };
+    const sectionObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) =>
+          visibleSections.set(entry.target, entry.isIntersecting),
+        );
+        syncCurrentSection();
+      },
+      { rootMargin: "-22% 0px -62%", threshold: 0 },
+    );
+    observedSections.forEach((section) => sectionObserver.observe(section));
+  }
+
+  matrixToggle?.addEventListener("click", () => {
+    setSiteNavigation(false);
+    setMatrixModeMenu(matrixModeMenu?.hidden, matrixKeyboardNavigation);
+  });
   document.querySelectorAll("[data-matrix-mode-choice]").forEach((choice) =>
     choice.addEventListener("click", () =>
       setMatrixMode(choice.dataset.matrixModeChoice),
@@ -1220,6 +1323,15 @@
       event.target.tagName,
     );
 
+    if (
+      event.key === "Escape" &&
+      siteNavigation?.classList.contains("is-open")
+    ) {
+      event.preventDefault();
+      setSiteNavigation(false, true);
+      return;
+    }
+
     if (matrixIntro?.hidden === false && event.key === "Escape") {
       event.preventDefault();
       hideMatrixIntro();
@@ -1287,7 +1399,7 @@
     if (event.key === "Tab" && matrixMode === "immersive") {
       const focusable = [
         ...matrixUI.querySelectorAll(
-          'button:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
+          'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), summary, [tabindex]:not([tabindex="-1"])',
         ),
       ].filter((element) => element.offsetParent !== null);
       if (!focusable.length) return;
@@ -1324,6 +1436,11 @@
 
   document.addEventListener("pointerdown", (event) => {
     if (!matrixLauncher?.contains(event.target)) setMatrixModeMenu(false);
+    if (
+      !siteNavigation?.contains(event.target) &&
+      !menuToggle?.contains(event.target)
+    )
+      setSiteNavigation(false);
   });
 
   window.addEventListener("resize", () => {
@@ -1386,6 +1503,10 @@
     const durationNode = player.querySelector("[data-duration]");
     const volume = player.querySelector("[data-player-volume]");
     const sleepSelect = player.querySelector("[data-player-sleep]");
+    const episodePosition = player.querySelector(
+      "[data-player-episode-position]",
+    );
+    const episodeSource = player.querySelector("[data-player-source]");
     const playerSessionKey = "focus-player-session-v1";
     let sleepTimer;
     let sleepMode = "off";
@@ -1469,6 +1590,9 @@
       if (miniTitleNode) miniTitleNode.textContent = episode.title;
       durationNode.textContent = formatTime(episode.duration);
       episodeSelect.value = String(episodeIndex);
+      if (episodePosition)
+        episodePosition.textContent = `${String(episodeIndex + 1).padStart(2, "0")} / ${String(episodes.length).padStart(2, "0")}`;
+      if (episodeSource) episodeSource.href = episode.page;
       localStorage.setItem("focus-episode", String(episodeIndex));
 
       if ("mediaSession" in navigator && "MediaMetadata" in window) {
@@ -1574,9 +1698,13 @@
     const changeEpisode = (offset) =>
       loadEpisode(episodeIndex + offset, !audio.paused);
 
-    playerToggle.addEventListener("click", () => {
+    playerToggle.addEventListener("click", (event) => {
       if (player.hidden || player.classList.contains("is-minimized")) {
         openPlayer();
+        if (event.detail === 0)
+          player
+            .querySelector("[data-player-play]")
+            ?.focus({ preventScroll: true });
       } else {
         minimizePlayer();
       }
@@ -1618,8 +1746,13 @@
     );
     progress.addEventListener("input", () => {
       const duration = audio.duration || episodes[episodeIndex].duration;
-      if (Number.isFinite(duration))
+      if (Number.isFinite(duration)) {
         audio.currentTime = (Number(progress.value) / 1000) * duration;
+        progress.setAttribute(
+          "aria-valuetext",
+          `${formatTime(audio.currentTime)} of ${formatTime(duration)}`,
+        );
+      }
     });
 
     const storedVolume = Number.parseFloat(
@@ -1721,6 +1854,10 @@
         "--player-progress",
         `${Number(progress.value) / 10}%`,
       );
+      progress.setAttribute(
+        "aria-valuetext",
+        `${formatTime(audio.currentTime)} of ${formatTime(duration)}`,
+      );
       if (
         "mediaSession" in navigator &&
         Number.isFinite(duration) &&
@@ -1740,6 +1877,14 @@
     });
 
     window.addEventListener("pagehide", persistPlayerSession);
+
+    player.addEventListener("keydown", (event) => {
+      if (event.key !== "Escape" || player.classList.contains("is-minimized"))
+        return;
+      event.preventDefault();
+      minimizePlayer();
+      playerToggle.focus({ preventScroll: true });
+    });
 
     if ("mediaSession" in navigator) {
       navigator.mediaSession.setActionHandler("play", () => {

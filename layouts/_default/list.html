@@ -6,15 +6,14 @@
 </header>
 <section class="archive" aria-label="{{ .Title }} archive">
   {{ range .Pages.ByDate.Reverse }}
-  <article class="archive-row">
+  <a class="archive-row" href="{{ .RelPermalink }}">
     <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "2006.01.02" }}</time>
     <div>
-      <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+      <h2>{{ .Title }}</h2>
       <p>{{ .Description }}</p>
     </div>
-    <a class="archive-arrow" href="{{ .RelPermalink }}" aria-label="Read {{ .Title }}">→</a>
-  </article>
+    <span class="archive-arrow" aria-hidden="true">→</span>
+  </a>
   {{ end }}
 </section>
 {{ end }}
-

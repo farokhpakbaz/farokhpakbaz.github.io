@@ -17,6 +17,16 @@
   <link rel="apple-touch-icon" href="{{ "icons/matrix-app-192.png" | relURL }}">
   <meta name="application-name" content="Matrix Immersive">
   <meta name="mobile-web-app-capable" content="yes">
+  <script>
+    (() => {
+      try {
+        const saved = localStorage.getItem("theme");
+        const theme = saved || (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+      } catch {}
+    })();
+  </script>
   {{- if .IsHome }}
     {{- $profile := dict
       "@context" "https://schema.org"
@@ -123,7 +133,11 @@
           <button type="button" data-matrix-settings-close aria-label="Close Matrix settings">×</button>
         </div>
 
-        <div class="matrix-settings__divider matrix-settings__divider--first"><span>rain geometry</span></div>
+        <p class="matrix-settings__intro">Start with a preset, then open only the controls you need. Changes are saved on this device.</p>
+
+        <details class="matrix-settings__group" open>
+          <summary><span>01</span><strong>Rain &amp; rendering</strong><small>Preset, geometry, light, and performance</small></summary>
+          <div class="matrix-settings__group-body">
 
         <label class="matrix-field">
           <span>Preset</span>
@@ -209,8 +223,13 @@
           </select>
         </label>
 
-        <div class="matrix-settings__divider"><span>lead beacon</span></div>
-        <label class="matrix-switch matrix-switch--featured">
+          </div>
+        </details>
+
+        <details class="matrix-settings__group">
+          <summary><span>02</span><strong>Lead beacon</strong><small>Optional bright head glyph</small></summary>
+          <div class="matrix-settings__group-body">
+          <label class="matrix-switch matrix-switch--featured">
           <span>
             <strong>Bright lead glyph</strong>
             <small>Optional cursor highlight; off for the trilogy look.</small>
@@ -231,7 +250,12 @@
           </label>
         </div>
 
-        <div class="matrix-settings__divider"><span>experience</span></div>
+          </div>
+        </details>
+
+        <details class="matrix-settings__group" open>
+          <summary><span>03</span><strong>Experience</strong><small>Atmosphere, motion, and controls</small></summary>
+          <div class="matrix-settings__group-body">
         <label class="matrix-field">
           <span>Ambient opacity</span>
           <input type="range" min="0.08" max="0.42" step="0.02" value="0.22" data-matrix-setting="ambientOpacity">
@@ -258,7 +282,12 @@
           </label>
         </div>
 
-        <div class="matrix-settings__divider"><span>launch ritual</span></div>
+          </div>
+        </details>
+
+        <details class="matrix-settings__group">
+          <summary><span>04</span><strong>Launch ritual</strong><small>Quotes, timing, and your library</small></summary>
+          <div class="matrix-settings__group-body">
         <div class="matrix-switches">
           <label class="matrix-switch matrix-switch--featured">
             <span><strong>Launch quotes</strong><small>Fade a quote in and out when the Matrix app starts.</small></span>
@@ -295,7 +324,12 @@
           </small>
         </div>
 
-        <div class="matrix-settings__divider"><span>audio signal</span></div>
+          </div>
+        </details>
+
+        <details class="matrix-settings__group">
+          <summary><span>05</span><strong>Audio signal</strong><small>Private, opt-in microphone spectrum</small></summary>
+          <div class="matrix-settings__group-body">
         <label class="matrix-switch matrix-switch--featured">
           <span><strong>Microphone spectrum</strong><small>Visualizes nearby audio locally; never recorded or uploaded.</small></span>
           <input type="checkbox" data-matrix-setting="audioReactive">
@@ -309,6 +343,9 @@
           <p>Chrome will ask for microphone permission only when this is enabled.</p>
         </div>
 
+          </div>
+        </details>
+
         <div class="matrix-settings__footer">
           <button type="button" data-matrix-reset>restore trilogy defaults</button>
           <span>M toggle · S tune · F fullscreen · Esc exit</span>
@@ -316,15 +353,15 @@
       </form>
   </section>
   <div class="site-shell">
-    <header class="site-header" aria-label="Primary navigation">
+    <header class="site-header" data-site-header aria-label="Primary navigation">
       <a class="wordmark" href="{{ site.Home.RelPermalink }}" aria-label="{{ site.Params.name }}, home">
         <span aria-hidden="true">{{ "<" }}</span>{{ site.Params.handle }}<span aria-hidden="true"> /&gt;</span>
       </a>
-      <nav class="nav-links" aria-label="Main menu">
-        <a href="{{ site.Home.RelPermalink }}#work">work</a>
-        <a href="{{ site.Home.RelPermalink }}#stack">stack</a>
-        <a href="{{ site.Home.RelPermalink }}#about">about</a>
-        <a href="{{ "notes/" | relURL }}">notes</a>
+      <nav class="nav-links" id="site-navigation" data-site-navigation aria-label="Main menu">
+        <a href="{{ site.Home.RelPermalink }}#work" data-nav-section="work">work</a>
+        <a href="{{ site.Home.RelPermalink }}#stack" data-nav-section="stack">stack</a>
+        <a href="{{ site.Home.RelPermalink }}#about" data-nav-section="about">about</a>
+        <a href="{{ "notes/" | relURL }}"{{ if eq .Section "notes" }} aria-current="page"{{ end }}>notes</a>
       </nav>
       <div class="header-actions">
         <div class="matrix-launcher" data-matrix-launcher>
@@ -371,12 +408,17 @@
         </button>
         <button class="theme-toggle" type="button" aria-label="Switch color theme" title="Switch color theme">
           <span class="theme-icon" aria-hidden="true">◐</span>
-          <span class="theme-label">theme</span>
+          <span class="theme-label" data-theme-label>theme</span>
+        </button>
+        <button class="menu-toggle" type="button" data-menu-toggle aria-controls="site-navigation" aria-expanded="false">
+          <span class="menu-toggle__icon" aria-hidden="true"><i></i><i></i></span>
+          <span class="sr-only">Open navigation</span>
         </button>
       </div>
+      <span class="reading-progress" data-reading-progress aria-hidden="true"></span>
     </header>
 
-    <main id="main">
+    <main id="main" tabindex="-1">
       {{ block "main" . }}{{ end }}
     </main>
 

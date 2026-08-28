@@ -1,5 +1,5 @@
 const CACHE_PREFIX = "farokh-matrix-";
-const CACHE_NAME = `${CACHE_PREFIX}v2`;
+const CACHE_NAME = `${CACHE_PREFIX}v3`;
 
 const MATRIX_ASSETS = [
   "/matrix-app.webmanifest",

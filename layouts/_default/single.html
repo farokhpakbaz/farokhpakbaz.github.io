@@ -6,9 +6,16 @@
     <h1>{{ .Title }}<span class="punctuation">.</span></h1>
     {{ with .Description }}<p class="article-deck">{{ . }}</p>{{ end }}
   </header>
-  <div class="prose">
-    {{ .Content }}
+  <div class="article-layout{{ if gt .WordCount 450 }} has-toc{{ end }}">
+    {{ if gt .WordCount 450 }}
+    <aside class="article-toc" aria-label="On this page">
+      <p>on this page</p>
+      {{ .TableOfContents }}
+    </aside>
+    {{ end }}
+    <div class="prose" data-article-content>
+      {{ .Content }}
+    </div>
   </div>
 </article>
 {{ end }}
-

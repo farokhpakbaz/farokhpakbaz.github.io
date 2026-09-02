@@ -1,0 +1,15 @@
+<a
+  class="article-image"
+  href="{{ .Destination | safeURL }}"
+  target="_blank"
+  rel="noopener noreferrer"
+  aria-label="Open full-size image{{ with .Text }}: {{ . }}{{ end }}"
+>
+  <img
+    src="{{ .Destination | safeURL }}"
+    alt="{{ .Text }}"
+    loading="lazy"
+    decoding="async"
+    {{- with .Title }} title="{{ . }}"{{ end -}}
+  >
+</a>

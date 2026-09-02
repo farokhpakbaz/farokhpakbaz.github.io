@@ -1079,6 +1079,15 @@
 
   const articleContent = document.querySelector("[data-article-content]");
   const readingProgress = document.querySelector("[data-reading-progress]");
+  const articleToc = document.querySelector("[data-article-toc]");
+  if (articleToc) {
+    const compactToc = window.matchMedia("(max-width: 760px)");
+    const syncArticleToc = () => {
+      articleToc.open = !compactToc.matches;
+    };
+    syncArticleToc();
+    compactToc.addEventListener?.("change", syncArticleToc);
+  }
   let readingFrame;
   const syncReadingProgress = () => {
     if (!articleContent || !readingProgress) return;

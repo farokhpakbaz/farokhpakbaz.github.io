@@ -9,8 +9,10 @@
   <div class="article-layout{{ if gt .WordCount 450 }} has-toc{{ end }}">
     {{ if gt .WordCount 450 }}
     <aside class="article-toc" aria-label="On this page">
-      <p>on this page</p>
-      {{ .TableOfContents }}
+      <details data-article-toc open>
+        <summary>on this page</summary>
+        {{ .TableOfContents }}
+      </details>
     </aside>
     {{ end }}
     <div class="prose" data-article-content>

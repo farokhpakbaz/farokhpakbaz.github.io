@@ -14,7 +14,10 @@ at build time, with a local fallback for offline or unavailable builds. Audio is
 never loaded or played until a visitor opens the player and presses play. The
 player can collapse into a compact controller without interrupting playback,
 integrates with browser media controls, remembers position during same-tab site
-navigation, and includes a sleep timer.
+navigation, and includes a sleep timer. A second **frequency lab** mode generates
+stereo beats entirely in the browser with focus, deep-work, calm, meditation,
+sleep, and energy moods. Every mood supports pure, warm, airy, and deep
+variations; no generated audio is recorded, downloaded, or sent off-device.
 
 The optional **Matrix mode** is powered by a deliberately trimmed WebGL runtime
 from [Rezmason/matrix](https://github.com/Rezmason/matrix). It offers two

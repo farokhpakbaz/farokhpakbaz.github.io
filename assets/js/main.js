@@ -1459,6 +1459,99 @@
     // Hugo supplies a local fallback, so this only guards malformed markup.
   }
 
+  const frequencyMoods = {
+    focus: {
+      label: "Focus",
+      carrier: 200,
+      beat: 14,
+      band: "beta",
+      description: "steady attention",
+    },
+    "deep-work": {
+      label: "Deep work",
+      carrier: 160,
+      beat: 10,
+      band: "alpha",
+      description: "sustained flow",
+    },
+    calm: {
+      label: "Calm",
+      carrier: 174,
+      beat: 7,
+      band: "theta",
+      description: "gentle reset",
+    },
+    meditate: {
+      label: "Meditate",
+      carrier: 136.1,
+      beat: 6,
+      band: "theta",
+      description: "quiet awareness",
+    },
+    sleep: {
+      label: "Sleep",
+      carrier: 110,
+      beat: 2.5,
+      band: "delta",
+      description: "slow descent",
+    },
+    energy: {
+      label: "Energy",
+      carrier: 220,
+      beat: 18,
+      band: "beta",
+      description: "active momentum",
+    },
+  };
+  const frequencyVariations = {
+    pure: {
+      label: "Pure",
+      carrierScale: 1,
+      wave: "sine",
+      harmonic: 0.008,
+      harmonicRatio: 0.5,
+      motion: 0.04,
+      motionDepth: 0.25,
+      noise: 0,
+      noiseCutoff: 800,
+    },
+    warm: {
+      label: "Warm",
+      carrierScale: 1,
+      wave: "sine",
+      harmonic: 0.055,
+      harmonicRatio: 0.5,
+      motion: 0.07,
+      motionDepth: 0.4,
+      noise: 0.018,
+      noiseCutoff: 720,
+    },
+    airy: {
+      label: "Airy",
+      carrierScale: 1.2,
+      wave: "triangle",
+      harmonic: 0.025,
+      harmonicRatio: 1.5,
+      motion: 0.11,
+      motionDepth: 0.55,
+      noise: 0.026,
+      noiseCutoff: 2400,
+    },
+    deep: {
+      label: "Deep",
+      carrierScale: 0.75,
+      wave: "sine",
+      harmonic: 0.065,
+      harmonicRatio: 0.5,
+      motion: 0.035,
+      motionDepth: 0.45,
+      noise: 0.014,
+      noiseCutoff: 480,
+    },
+  };
+  const frequencyMoodKeys = Object.keys(frequencyMoods);
+  const frequencyVariationKeys = Object.keys(frequencyVariations);
+
   const player = document.querySelector("[data-player]");
   const audio = player?.querySelector("[data-player-audio]");
   const playerToggle = document.querySelector("[data-player-toggle]");
@@ -1469,16 +1562,42 @@
     const statusNode = player.querySelector("[data-player-status]");
     const playIcons = [...player.querySelectorAll("[data-play-icon]")];
     const playButtons = [...player.querySelectorAll("[data-player-play]")];
+    const previousButtons = [...player.querySelectorAll("[data-player-prev]")];
+    const nextButtons = [...player.querySelectorAll("[data-player-next]")];
+    const playerToggleLabel = playerToggle.querySelector("span:last-child");
     const episodeSelect = player.querySelector("[data-episode-select]");
     const progress = player.querySelector("[data-player-progress]");
     const currentTimeNode = player.querySelector("[data-current-time]");
     const durationNode = player.querySelector("[data-duration]");
     const volume = player.querySelector("[data-player-volume]");
     const sleepSelect = player.querySelector("[data-player-sleep]");
-    const episodePosition = player.querySelector(
-      "[data-player-episode-position]",
+    const episodeSleepOption = sleepSelect.querySelector(
+      'option[value="episode"]',
     );
+    const positionNode = player.querySelector("[data-player-position]");
     const episodeSource = player.querySelector("[data-player-source]");
+    const frequencyNote = player.querySelector("[data-frequency-note]");
+    const playerLabel = player.querySelector("[data-player-label]");
+    const playerSubtitle = player.querySelector("[data-player-subtitle]");
+    const miniLabel = player.querySelector("[data-player-mini-label]");
+    const kickerNode = player.querySelector("[data-player-kicker]");
+    const moodSelect = player.querySelector("[data-frequency-mood]");
+    const variationSelect = player.querySelector("[data-frequency-variation]");
+    const frequencyReadout = player.querySelector("[data-frequency-readout]");
+    const frequencyBand = player.querySelector("[data-frequency-band]");
+    const modeButtons = [
+      ...player.querySelectorAll("[data-player-mode-choice]"),
+    ];
+    const radioControls = [...player.querySelectorAll("[data-radio-controls]")];
+    const frequencyControls = player.querySelector("[data-frequency-controls]");
+    const secondaryButtons = [
+      ...player.querySelectorAll("[data-player-secondary]"),
+    ];
+    const visualizerBars = [...player.querySelectorAll("[data-visualizer] i")];
+    const FrequencyGenerator = window.FocusFrequencyGenerator;
+    const frequencyGenerator = FrequencyGenerator
+      ? new FrequencyGenerator()
+      : null;
     const playerSessionKey = "focus-player-session-v1";
     let sleepTimer;
     let sleepMode = "off";
@@ -1527,6 +1646,18 @@
       restoredSession = null;
     }
 
+    let playerMode =
+      restoredSession?.mode ||
+      localStorage.getItem("focus-player-mode") ||
+      "radio";
+    let moodKey =
+      restoredSession?.mood ||
+      localStorage.getItem("focus-frequency-mood") ||
+      "focus";
+    let variationKey =
+      restoredSession?.variation ||
+      localStorage.getItem("focus-frequency-variation") ||
+      "pure";
     let episodeIndex = Number.parseInt(
       String(
         restoredSession?.episodeIndex ??
@@ -1539,7 +1670,12 @@
 
     if (!Number.isInteger(episodeIndex) || !episodes[episodeIndex])
       episodeIndex = 0;
+    if (!["radio", "frequency"].includes(playerMode)) playerMode = "radio";
+    if (!frequencyMoods[moodKey]) moodKey = "focus";
+    if (!frequencyVariations[variationKey]) variationKey = "pure";
     episodeSelect.value = String(episodeIndex);
+    moodSelect.value = moodKey;
+    variationSelect.value = variationKey;
 
     const formatTime = (value) => {
       if (!Number.isFinite(value) || value < 0) return "00:00";
@@ -1556,15 +1692,33 @@
       statusNode.textContent = message;
     };
 
+    const setPlayingUI = (playing) => {
+      player.classList.toggle("is-playing", playing);
+      playerToggle.classList.toggle("is-playing", playing);
+      playIcons.forEach((icon) => {
+        icon.textContent = icon.closest(".player-mini")
+          ? playing
+            ? "Ⅱ"
+            : "▶"
+          : playing
+            ? "PAUSE"
+            : "PLAY";
+      });
+      playButtons.forEach((button) =>
+        button.setAttribute("aria-label", playing ? "Pause" : "Play"),
+      );
+    };
+
     const syncEpisodeUI = () => {
       const episode = episodes[episodeIndex];
       titleNode.textContent = episode.title;
       if (miniTitleNode) miniTitleNode.textContent = episode.title;
       durationNode.textContent = formatTime(episode.duration);
       episodeSelect.value = String(episodeIndex);
-      if (episodePosition)
-        episodePosition.textContent = `${String(episodeIndex + 1).padStart(2, "0")} / ${String(episodes.length).padStart(2, "0")}`;
+      if (positionNode)
+        positionNode.textContent = `${String(episodeIndex + 1).padStart(2, "0")} / ${String(episodes.length).padStart(2, "0")}`;
       if (episodeSource) episodeSource.href = episode.page;
+      visualizerBars.forEach((bar) => bar.removeAttribute("style"));
       localStorage.setItem("focus-episode", String(episodeIndex));
 
       if ("mediaSession" in navigator && "MediaMetadata" in window) {
@@ -1576,16 +1730,145 @@
       }
     };
 
+    const syncFrequencyUI = () => {
+      const mood = frequencyMoods[moodKey];
+      const variation = frequencyVariations[variationKey];
+      const carrier = mood.carrier * variation.carrierScale;
+      titleNode.textContent = `${mood.label} · ${variation.label}`;
+      miniTitleNode.textContent = `${mood.label} · ${variation.label}`;
+      positionNode.textContent = `${mood.beat} HZ / ${mood.band.toUpperCase()}`;
+      frequencyReadout.textContent = `${Number(carrier.toFixed(1))} Hz carrier`;
+      frequencyBand.textContent = `${mood.beat} Hz · ${mood.band} · ${mood.description}`;
+      moodSelect.value = moodKey;
+      variationSelect.value = variationKey;
+      const moodIndex = frequencyMoodKeys.indexOf(moodKey);
+      const variationIndex = frequencyVariationKeys.indexOf(variationKey);
+      visualizerBars.forEach((bar, index) => {
+        const phase = (index * 17 + moodIndex * 23 + variationIndex * 31) % 79;
+        bar.style.setProperty("--height", `${20 + phase}%`);
+        bar.style.animationDuration = `${Math.max(0.38, 1.35 - mood.beat / 22 + (index % 5) * 0.08)}s`;
+      });
+      localStorage.setItem("focus-frequency-mood", moodKey);
+      localStorage.setItem("focus-frequency-variation", variationKey);
+      if (
+        playerMode === "frequency" &&
+        "mediaSession" in navigator &&
+        "MediaMetadata" in window
+      ) {
+        if (typeof navigator.mediaSession.setPositionState === "function") {
+          try {
+            navigator.mediaSession.setPositionState();
+          } catch {
+            // Some browsers require an active media session before clearing.
+          }
+        }
+        navigator.mediaSession.metadata = new MediaMetadata({
+          title: `${mood.label} · ${variation.label}`,
+          artist: "Local frequency generator",
+          album: `${mood.beat} Hz ${mood.band} beat`,
+        });
+      }
+    };
+
+    const syncModeUI = () => {
+      const frequencyMode = playerMode === "frequency";
+      player.dataset.playerMode = playerMode;
+      radioControls.forEach((control) => (control.hidden = frequencyMode));
+      frequencyControls.hidden = !frequencyMode;
+      episodeSource.hidden = frequencyMode;
+      frequencyNote.hidden = !frequencyMode;
+      episodeSleepOption.disabled = frequencyMode;
+      playerLabel.textContent = frequencyMode ? "frequency lab" : "focus radio";
+      playerSubtitle.textContent = frequencyMode
+        ? "generated locally"
+        : "background playback";
+      miniLabel.textContent = frequencyMode ? "frequency lab" : "focus radio";
+      if (playerToggleLabel)
+        playerToggleLabel.textContent = frequencyMode
+          ? "frequency lab"
+          : "focus radio";
+      previousButtons.forEach((button) =>
+        button.setAttribute(
+          "aria-label",
+          frequencyMode ? "Previous mood" : "Previous episode",
+        ),
+      );
+      nextButtons.forEach((button) =>
+        button.setAttribute(
+          "aria-label",
+          frequencyMode ? "Next mood" : "Next episode",
+        ),
+      );
+      player
+        .querySelectorAll("[data-player-minimize]")
+        .forEach((button) =>
+          button.setAttribute(
+            "aria-label",
+            `Minimize ${frequencyMode ? "frequency lab" : "focus radio"}`,
+          ),
+        );
+      player
+        .querySelectorAll("[data-player-expand]")
+        .forEach((button) =>
+          button.setAttribute(
+            "aria-label",
+            `Expand ${frequencyMode ? "frequency lab" : "focus radio"}`,
+          ),
+        );
+      player
+        .querySelectorAll("[data-player-close]")
+        .forEach((button) =>
+          button.setAttribute(
+            "aria-label",
+            `Stop and close ${frequencyMode ? "frequency lab" : "focus radio"}`,
+          ),
+        );
+      kickerNode.textContent = frequencyMode
+        ? "NOW GENERATING"
+        : "NOW STREAMING";
+      modeButtons.forEach((button) => {
+        const active = button.dataset.playerModeChoice === playerMode;
+        button.classList.toggle("is-active", active);
+        button.setAttribute("aria-pressed", String(active));
+      });
+      secondaryButtons.forEach((button) => {
+        const previous = button.dataset.playerSecondary === "-1";
+        button.textContent = frequencyMode
+          ? previous
+            ? "VAR−"
+            : "VAR+"
+          : previous
+            ? "−30"
+            : "+30";
+        button.setAttribute(
+          "aria-label",
+          frequencyMode
+            ? `${previous ? "Previous" : "Next"} variation`
+            : `${previous ? "Rewind" : "Forward"} 30 seconds`,
+        );
+      });
+      if (frequencyMode) syncFrequencyUI();
+      else syncEpisodeUI();
+      localStorage.setItem("focus-player-mode", playerMode);
+    };
+
     const persistPlayerSession = () => {
-      if (player.hidden && loadedIndex < 0) return;
+      if (player.hidden && loadedIndex < 0 && !frequencyGenerator?.playing)
+        return;
       sessionStorage.setItem(
         playerSessionKey,
         JSON.stringify({
+          mode: playerMode,
+          mood: moodKey,
+          variation: variationKey,
           episodeIndex,
           currentTime: Number.isFinite(audio.currentTime)
             ? audio.currentTime
             : 0,
-          playing: !audio.paused,
+          playing:
+            playerMode === "frequency"
+              ? Boolean(frequencyGenerator?.playing)
+              : !audio.paused,
           view: player.classList.contains("is-minimized")
             ? "minimized"
             : player.hidden
@@ -1610,15 +1893,57 @@
       }
     };
 
+    const startFrequency = async () => {
+      if (!frequencyGenerator?.supported) {
+        setStatus("frequency generation is unavailable in this browser");
+        return;
+      }
+      try {
+        await frequencyGenerator.start(
+          frequencyMoods[moodKey],
+          frequencyVariations[variationKey],
+        );
+        setPlayingUI(true);
+        setStatus("signal generated locally · use headphones");
+        if ("mediaSession" in navigator)
+          navigator.mediaSession.playbackState = "playing";
+        persistPlayerSession();
+      } catch {
+        setPlayingUI(false);
+        setStatus("tap play to enable browser audio");
+      }
+    };
+
+    const stopFrequency = () => {
+      frequencyGenerator?.stop();
+      setPlayingUI(false);
+      if ("mediaSession" in navigator)
+        navigator.mediaSession.playbackState = "paused";
+    };
+
+    const setPlayerMode = (nextMode) => {
+      if (nextMode === playerMode) return;
+      window.clearTimeout(sleepTimer);
+      audio.pause();
+      stopFrequency();
+      playerMode = nextMode;
+      sleepMode = "off";
+      sleepSelect.value = "off";
+      syncModeUI();
+      setPlayingUI(false);
+      setStatus("ready when you are");
+      syncPlayerClearance();
+      persistPlayerSession();
+    };
+
     const openPlayer = () => {
       player.hidden = false;
       player.classList.remove("is-minimized");
       playerToggle.setAttribute("aria-expanded", "true");
-      playerToggle.setAttribute("title", "Minimize focus radio");
-      if (loadedIndex < 0) {
-        syncEpisodeUI();
+      playerToggle.setAttribute("title", "Minimize focus audio");
+      syncModeUI();
+      if (loadedIndex < 0 && !frequencyGenerator?.playing)
         setStatus("ready when you are");
-      }
       syncPlayerClearance();
       persistPlayerSession();
     };
@@ -1627,7 +1952,7 @@
       player.hidden = false;
       player.classList.add("is-minimized");
       playerToggle.setAttribute("aria-expanded", "false");
-      playerToggle.setAttribute("title", "Expand focus radio");
+      playerToggle.setAttribute("title", "Expand focus audio");
       syncPlayerClearance();
       persistPlayerSession();
     };
@@ -1637,15 +1962,16 @@
       sleepMode = "off";
       sleepSelect.value = "off";
       audio.pause();
+      frequencyGenerator?.destroy();
       audio.removeAttribute("src");
       audio.load();
       loadedIndex = -1;
       pendingStartTime = 0;
       player.hidden = true;
-      player.classList.remove("is-minimized", "is-playing");
-      playerToggle.classList.remove("is-playing");
+      player.classList.remove("is-minimized");
+      setPlayingUI(false);
       playerToggle.setAttribute("aria-expanded", "false");
-      playerToggle.setAttribute("title", "Open focus radio");
+      playerToggle.setAttribute("title", "Open focus audio");
       syncPlayerClearance();
       sessionStorage.removeItem(playerSessionKey);
       if ("mediaSession" in navigator)
@@ -1654,6 +1980,16 @@
     };
 
     const togglePlayback = () => {
+      if (playerMode === "frequency") {
+        if (frequencyGenerator?.playing) {
+          stopFrequency();
+          setStatus("paused");
+          persistPlayerSession();
+        } else {
+          startFrequency();
+        }
+        return;
+      }
       if (loadedIndex < 0) {
         loadEpisode(episodeIndex, true);
         return;
@@ -1670,6 +2006,27 @@
 
     const changeEpisode = (offset) =>
       loadEpisode(episodeIndex + offset, !audio.paused);
+
+    const changeMood = (offset) => {
+      const index = frequencyMoodKeys.indexOf(moodKey);
+      moodKey =
+        frequencyMoodKeys[
+          (index + offset + frequencyMoodKeys.length) % frequencyMoodKeys.length
+        ];
+      syncFrequencyUI();
+      if (frequencyGenerator?.playing) startFrequency();
+    };
+
+    const changeVariation = (offset) => {
+      const index = frequencyVariationKeys.indexOf(variationKey);
+      variationKey =
+        frequencyVariationKeys[
+          (index + offset + frequencyVariationKeys.length) %
+            frequencyVariationKeys.length
+        ];
+      syncFrequencyUI();
+      if (frequencyGenerator?.playing) startFrequency();
+    };
 
     playerToggle.addEventListener("click", (event) => {
       if (player.hidden || player.classList.contains("is-minimized")) {
@@ -1699,26 +2056,54 @@
     player
       .querySelectorAll("[data-player-prev]")
       .forEach((button) =>
-        button.addEventListener("click", () => changeEpisode(-1)),
+        button.addEventListener("click", () =>
+          playerMode === "frequency" ? changeMood(-1) : changeEpisode(-1),
+        ),
       );
     player
       .querySelectorAll("[data-player-next]")
       .forEach((button) =>
-        button.addEventListener("click", () => changeEpisode(1)),
+        button.addEventListener("click", () =>
+          playerMode === "frequency" ? changeMood(1) : changeEpisode(1),
+        ),
       );
     player
       .querySelector("[data-player-rewind]")
       .addEventListener("click", () => {
-        audio.currentTime = Math.max(0, audio.currentTime - 30);
+        if (playerMode === "frequency") changeVariation(-1);
+        else audio.currentTime = Math.max(0, audio.currentTime - 30);
       });
     player
       .querySelector("[data-player-forward]")
       .addEventListener("click", () => {
+        if (playerMode === "frequency") {
+          changeVariation(1);
+          return;
+        }
         audio.currentTime = Math.min(
           audio.duration || episodes[episodeIndex].duration,
           audio.currentTime + 30,
         );
       });
+
+    modeButtons.forEach((button) => {
+      button.addEventListener("click", () =>
+        setPlayerMode(button.dataset.playerModeChoice),
+      );
+    });
+    moodSelect.addEventListener("change", () => {
+      moodKey = moodSelect.value;
+      syncFrequencyUI();
+      if (frequencyGenerator?.playing) startFrequency();
+      persistPlayerSession();
+    });
+
+    variationSelect.addEventListener("change", () => {
+      variationKey = variationSelect.value;
+      syncFrequencyUI();
+      if (frequencyGenerator?.playing) startFrequency();
+      persistPlayerSession();
+    });
 
     episodeSelect.addEventListener("change", () =>
       loadEpisode(Number(episodeSelect.value), !audio.paused),
@@ -1741,8 +2126,10 @@
       ? Math.min(1, Math.max(0, storedVolume))
       : 0.8;
     volume.value = String(audio.volume);
+    frequencyGenerator?.setVolume(audio.volume);
     volume.addEventListener("input", () => {
       audio.volume = Number(volume.value);
+      frequencyGenerator?.setVolume(audio.volume);
       localStorage.setItem("focus-volume", String(audio.volume));
     });
 
@@ -1753,7 +2140,8 @@
       if (Number.isFinite(minutes) && minutes > 0) {
         sleepTimer = window.setTimeout(
           () => {
-            audio.pause();
+            if (playerMode === "frequency") stopFrequency();
+            else audio.pause();
             sleepMode = "off";
             sleepSelect.value = "off";
             setStatus("sleep timer complete · paused");
@@ -1765,19 +2153,23 @@
       } else if (sleepMode === "episode") {
         setStatus("sleep timer · end of episode");
       } else {
-        setStatus(audio.paused ? "paused" : "signal locked · streaming");
+        const playing =
+          playerMode === "frequency"
+            ? frequencyGenerator?.playing
+            : !audio.paused;
+        setStatus(
+          playing
+            ? playerMode === "frequency"
+              ? "signal generated locally · use headphones"
+              : "signal locked · streaming"
+            : "paused",
+        );
       }
     });
 
     audio.addEventListener("playing", () => {
-      player.classList.add("is-playing");
-      playerToggle.classList.add("is-playing");
-      playIcons.forEach((icon) => {
-        icon.textContent = icon.closest(".player-mini") ? "Ⅱ" : "PAUSE";
-      });
-      playButtons.forEach((button) =>
-        button.setAttribute("aria-label", "Pause"),
-      );
+      if (playerMode !== "radio") return;
+      setPlayingUI(true);
       setStatus("signal locked · streaming");
       if ("mediaSession" in navigator)
         navigator.mediaSession.playbackState = "playing";
@@ -1785,23 +2177,19 @@
     });
 
     audio.addEventListener("pause", () => {
-      player.classList.remove("is-playing");
-      playerToggle.classList.remove("is-playing");
-      playIcons.forEach((icon) => {
-        icon.textContent = icon.closest(".player-mini") ? "▶" : "PLAY";
-      });
-      playButtons.forEach((button) =>
-        button.setAttribute("aria-label", "Play"),
-      );
+      if (playerMode !== "radio") return;
+      setPlayingUI(false);
       if (audio.currentTime > 0 && !audio.ended) setStatus("paused");
       if ("mediaSession" in navigator)
         navigator.mediaSession.playbackState = "paused";
       persistPlayerSession();
     });
 
-    audio.addEventListener("waiting", () => setStatus("buffering…"));
+    audio.addEventListener("waiting", () => {
+      if (playerMode === "radio") setStatus("buffering…");
+    });
     audio.addEventListener("error", () => {
-      if (audio.getAttribute("src"))
+      if (playerMode === "radio" && audio.getAttribute("src"))
         setStatus("stream unavailable — try another episode");
     });
     audio.addEventListener("ended", () => {
@@ -1815,6 +2203,7 @@
       }
     });
     audio.addEventListener("loadedmetadata", () => {
+      if (playerMode !== "radio") return;
       if (pendingStartTime > 0) {
         const duration = audio.duration || episodes[episodeIndex].duration;
         audio.currentTime = Math.min(
@@ -1829,6 +2218,7 @@
       if (audio.paused) setStatus("ready when you are");
     });
     audio.addEventListener("timeupdate", () => {
+      if (playerMode !== "radio") return;
       const duration = audio.duration || episodes[episodeIndex].duration;
       currentTimeNode.textContent = formatTime(audio.currentTime);
       progress.value =
@@ -1873,26 +2263,32 @@
 
     if ("mediaSession" in navigator) {
       navigator.mediaSession.setActionHandler("play", () => {
-        if (loadedIndex < 0) loadEpisode(episodeIndex, true);
+        if (playerMode === "frequency") startFrequency();
+        else if (loadedIndex < 0) loadEpisode(episodeIndex, true);
         else audio.play().catch(() => setStatus("tap play to continue"));
       });
-      navigator.mediaSession.setActionHandler("pause", () => audio.pause());
+      navigator.mediaSession.setActionHandler("pause", () =>
+        playerMode === "frequency" ? stopFrequency() : audio.pause(),
+      );
       navigator.mediaSession.setActionHandler("previoustrack", () =>
-        changeEpisode(-1),
+        playerMode === "frequency" ? changeMood(-1) : changeEpisode(-1),
       );
       navigator.mediaSession.setActionHandler("nexttrack", () =>
-        changeEpisode(1),
+        playerMode === "frequency" ? changeMood(1) : changeEpisode(1),
       );
       navigator.mediaSession.setActionHandler("seekbackward", () => {
+        if (playerMode !== "radio") return;
         audio.currentTime = Math.max(0, audio.currentTime - 30);
       });
       navigator.mediaSession.setActionHandler("seekforward", () => {
+        if (playerMode !== "radio") return;
         audio.currentTime = Math.min(
           audio.duration || episodes[episodeIndex].duration,
           audio.currentTime + 30,
         );
       });
       navigator.mediaSession.setActionHandler("seekto", (details) => {
+        if (playerMode !== "radio") return;
         if (Number.isFinite(details.seekTime)) {
           audio.currentTime = details.seekTime;
         }
@@ -1900,27 +2296,33 @@
       navigator.mediaSession.setActionHandler("stop", stopAndClosePlayer);
     }
 
-    syncEpisodeUI();
-    playerToggle.setAttribute("title", "Open focus radio");
+    syncModeUI();
+    setPlayingUI(false);
+    playerToggle.setAttribute("title", "Open focus audio");
     const focusRequest = new URLSearchParams(window.location.search).get(
       "focus",
     );
     const focusRequested = focusRequest !== null;
     const shouldRestore =
       restoredSession &&
-      episodes[restoredSession.episodeIndex] &&
-      ["expanded", "minimized", "hidden"].includes(restoredSession.view);
+      ["expanded", "minimized", "hidden"].includes(restoredSession.view) &&
+      (playerMode === "frequency" || episodes[restoredSession.episodeIndex]);
 
     if (shouldRestore) {
       if (focusRequest === "mini") minimizePlayer();
       else if (focusRequested || restoredSession.view === "expanded")
         openPlayer();
       else minimizePlayer();
-      loadEpisode(
-        Number(restoredSession.episodeIndex),
-        Boolean(restoredSession.playing),
-        Number(restoredSession.currentTime) || 0,
-      );
+      if (playerMode === "frequency") {
+        if (restoredSession.playing)
+          setStatus("tap play to resume frequencies");
+      } else {
+        loadEpisode(
+          Number(restoredSession.episodeIndex),
+          Boolean(restoredSession.playing),
+          Number(restoredSession.currentTime) || 0,
+        );
+      }
     } else if (focusRequested) {
       if (focusRequest === "mini") minimizePlayer();
       else openPlayer();

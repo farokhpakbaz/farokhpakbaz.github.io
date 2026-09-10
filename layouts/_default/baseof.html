@@ -425,6 +425,12 @@
     {{ partial "footer.html" . }}
   </div>
   {{ partial "player.html" . }}
+  {{ $frequencyScript := resources.Get "js/frequency-generator.js" | minify | fingerprint }}
+  <script
+    src="{{ $frequencyScript.RelPermalink }}"
+    integrity="{{ $frequencyScript.Data.Integrity }}"
+    defer
+  ></script>
   {{ $script := resources.Get "js/main.js" | minify | fingerprint }}
   <script
     src="{{ $script.RelPermalink }}"

@@ -116,18 +116,17 @@
       input.connect(this.master);
       this.activeSession = session;
 
-      const carrier = mood.carrier * variation.carrierScale;
-      const stereoSpread = mood.beat / 2;
+      const carrier = mood.carrier;
       this.createOscillator(
         session,
-        carrier - stereoSpread,
+        carrier,
         "sine",
         0.19,
         -0.82,
       );
       this.createOscillator(
         session,
-        carrier + stereoSpread,
+        carrier + mood.beat,
         "sine",
         0.19,
         0.82,

@@ -16,8 +16,10 @@ player can collapse into a compact controller without interrupting playback,
 integrates with browser media controls, remembers position during same-tab site
 navigation, and includes a sleep timer. A second **frequency lab** mode generates
 stereo beats entirely in the browser with focus, deep-work, calm, meditation,
-sleep, and energy moods. Every mood supports pure, warm, airy, and deep
-variations; no generated audio is recorded, downloaded, or sent off-device.
+sleep, and energy moods. All nine Solfeggio tones from 174 Hz through 963 Hz
+work with every mood and with pure, warm, airy, and deep variations. Their labels
+reflect traditional wellness associations, not established medical benefits. No
+generated audio is recorded, downloaded, or sent off-device.
 
 The optional **Matrix mode** is powered by a deliberately trimmed WebGL runtime
 from [Rezmason/matrix](https://github.com/Rezmason/matrix). It offers two

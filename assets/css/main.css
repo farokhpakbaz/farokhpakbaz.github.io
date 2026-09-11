@@ -2126,7 +2126,7 @@ a.project-row:hover {
     min-height: 86px;
     padding: 0.85rem 1.25rem;
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 0.65rem 1rem;
     border-block: 1px solid var(--line);
 }
@@ -2803,7 +2803,11 @@ a.project-row:hover {
     display: none;
   }
   .frequency-controls {
+    grid-template-columns: 1fr 1fr;
     padding-inline: 1rem;
+  }
+  .frequency-controls label:first-child {
+    grid-column: 1 / -1;
   }
   .focus-player.is-minimized {
     width: 100%;

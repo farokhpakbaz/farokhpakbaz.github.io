@@ -1459,54 +1459,57 @@
     // Hugo supplies a local fallback, so this only guards malformed markup.
   }
 
+  const solfeggioTones = {
+    174: { hz: 174, label: "Foundation", association: "comfort & grounding" },
+    285: { hz: 285, label: "Renewal", association: "restoration & renewal" },
+    396: { hz: 396, label: "Root", association: "releasing fear & guilt" },
+    417: { hz: 417, label: "Sacral", association: "change & new beginnings" },
+    528: {
+      hz: 528,
+      label: "Transformation",
+      association: "love & transformation",
+    },
+    639: { hz: 639, label: "Heart", association: "connection & harmony" },
+    741: { hz: 741, label: "Throat", association: "expression & intuition" },
+    852: { hz: 852, label: "Third eye", association: "inner awareness" },
+    963: { hz: 963, label: "Crown", association: "oneness & awakening" },
+  };
+
   const frequencyMoods = {
     focus: {
       label: "Focus",
-      carrier: 200,
       beat: 14,
       band: "beta",
-      description: "steady attention",
     },
     "deep-work": {
       label: "Deep work",
-      carrier: 160,
       beat: 10,
       band: "alpha",
-      description: "sustained flow",
     },
     calm: {
       label: "Calm",
-      carrier: 174,
       beat: 7,
       band: "theta",
-      description: "gentle reset",
     },
     meditate: {
       label: "Meditate",
-      carrier: 136.1,
       beat: 6,
       band: "theta",
-      description: "quiet awareness",
     },
     sleep: {
       label: "Sleep",
-      carrier: 110,
       beat: 2.5,
       band: "delta",
-      description: "slow descent",
     },
     energy: {
       label: "Energy",
-      carrier: 220,
       beat: 18,
       band: "beta",
-      description: "active momentum",
     },
   };
   const frequencyVariations = {
     pure: {
       label: "Pure",
-      carrierScale: 1,
       wave: "sine",
       harmonic: 0.008,
       harmonicRatio: 0.5,
@@ -1517,7 +1520,6 @@
     },
     warm: {
       label: "Warm",
-      carrierScale: 1,
       wave: "sine",
       harmonic: 0.055,
       harmonicRatio: 0.5,
@@ -1528,7 +1530,6 @@
     },
     airy: {
       label: "Airy",
-      carrierScale: 1.2,
       wave: "triangle",
       harmonic: 0.025,
       harmonicRatio: 1.5,
@@ -1539,7 +1540,6 @@
     },
     deep: {
       label: "Deep",
-      carrierScale: 0.75,
       wave: "sine",
       harmonic: 0.065,
       harmonicRatio: 0.5,
@@ -1549,6 +1549,7 @@
       noiseCutoff: 480,
     },
   };
+  const solfeggioToneKeys = Object.keys(solfeggioTones);
   const frequencyMoodKeys = Object.keys(frequencyMoods);
   const frequencyVariationKeys = Object.keys(frequencyVariations);
 
@@ -1581,6 +1582,7 @@
     const playerSubtitle = player.querySelector("[data-player-subtitle]");
     const miniLabel = player.querySelector("[data-player-mini-label]");
     const kickerNode = player.querySelector("[data-player-kicker]");
+    const toneSelect = player.querySelector("[data-frequency-tone]");
     const moodSelect = player.querySelector("[data-frequency-mood]");
     const variationSelect = player.querySelector("[data-frequency-variation]");
     const frequencyReadout = player.querySelector("[data-frequency-readout]");
@@ -1650,6 +1652,10 @@
       restoredSession?.mode ||
       localStorage.getItem("focus-player-mode") ||
       "radio";
+    let toneKey =
+      restoredSession?.tone ||
+      localStorage.getItem("focus-frequency-tone") ||
+      "174";
     let moodKey =
       restoredSession?.mood ||
       localStorage.getItem("focus-frequency-mood") ||
@@ -1671,9 +1677,11 @@
     if (!Number.isInteger(episodeIndex) || !episodes[episodeIndex])
       episodeIndex = 0;
     if (!["radio", "frequency"].includes(playerMode)) playerMode = "radio";
+    if (!solfeggioTones[toneKey]) toneKey = "174";
     if (!frequencyMoods[moodKey]) moodKey = "focus";
     if (!frequencyVariations[variationKey]) variationKey = "pure";
     episodeSelect.value = String(episodeIndex);
+    toneSelect.value = toneKey;
     moodSelect.value = moodKey;
     variationSelect.value = variationKey;
 
@@ -1731,23 +1739,28 @@
     };
 
     const syncFrequencyUI = () => {
+      const tone = solfeggioTones[toneKey];
       const mood = frequencyMoods[moodKey];
       const variation = frequencyVariations[variationKey];
-      const carrier = mood.carrier * variation.carrierScale;
-      titleNode.textContent = `${mood.label} · ${variation.label}`;
-      miniTitleNode.textContent = `${mood.label} · ${variation.label}`;
-      positionNode.textContent = `${mood.beat} HZ / ${mood.band.toUpperCase()}`;
-      frequencyReadout.textContent = `${Number(carrier.toFixed(1))} Hz carrier`;
-      frequencyBand.textContent = `${mood.beat} Hz · ${mood.band} · ${mood.description}`;
+      titleNode.textContent = `${tone.hz} Hz · ${mood.label} · ${variation.label}`;
+      miniTitleNode.textContent = `${tone.hz} Hz · ${mood.label}`;
+      positionNode.textContent = `${tone.hz} HZ / ${mood.band.toUpperCase()}`;
+      frequencyReadout.textContent = `${tone.hz} Hz · ${tone.label}`;
+      frequencyBand.textContent = `traditional: ${tone.association} · ${mood.beat} Hz ${mood.band}`;
+      toneSelect.value = toneKey;
       moodSelect.value = moodKey;
       variationSelect.value = variationKey;
+      const toneIndex = solfeggioToneKeys.indexOf(toneKey);
       const moodIndex = frequencyMoodKeys.indexOf(moodKey);
       const variationIndex = frequencyVariationKeys.indexOf(variationKey);
       visualizerBars.forEach((bar, index) => {
-        const phase = (index * 17 + moodIndex * 23 + variationIndex * 31) % 79;
+        const phase =
+          (index * 17 + toneIndex * 11 + moodIndex * 23 + variationIndex * 31) %
+          79;
         bar.style.setProperty("--height", `${20 + phase}%`);
         bar.style.animationDuration = `${Math.max(0.38, 1.35 - mood.beat / 22 + (index % 5) * 0.08)}s`;
       });
+      localStorage.setItem("focus-frequency-tone", toneKey);
       localStorage.setItem("focus-frequency-mood", moodKey);
       localStorage.setItem("focus-frequency-variation", variationKey);
       if (
@@ -1763,9 +1776,9 @@
           }
         }
         navigator.mediaSession.metadata = new MediaMetadata({
-          title: `${mood.label} · ${variation.label}`,
-          artist: "Local frequency generator",
-          album: `${mood.beat} Hz ${mood.band} beat`,
+          title: `${tone.hz} Hz · ${mood.label} · ${variation.label}`,
+          artist: "Local Solfeggio tone generator",
+          album: `${tone.label} · ${mood.beat} Hz ${mood.band} beat`,
         });
       }
     };
@@ -1859,6 +1872,7 @@
         playerSessionKey,
         JSON.stringify({
           mode: playerMode,
+          tone: toneKey,
           mood: moodKey,
           variation: variationKey,
           episodeIndex,
@@ -1900,7 +1914,7 @@
       }
       try {
         await frequencyGenerator.start(
-          frequencyMoods[moodKey],
+          { ...frequencyMoods[moodKey], carrier: solfeggioTones[toneKey].hz },
           frequencyVariations[variationKey],
         );
         setPlayingUI(true);
@@ -2091,6 +2105,13 @@
         setPlayerMode(button.dataset.playerModeChoice),
       );
     });
+    toneSelect.addEventListener("change", () => {
+      toneKey = toneSelect.value;
+      syncFrequencyUI();
+      if (frequencyGenerator?.playing) startFrequency();
+      persistPlayerSession();
+    });
+
     moodSelect.addEventListener("change", () => {
       moodKey = moodSelect.value;
       syncFrequencyUI();

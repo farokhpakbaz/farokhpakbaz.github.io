@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" role="img" aria-label="Frequency Lab">
+  <defs><radialGradient id="b" cx="50%" cy="42%" r="72%"><stop offset="0" stop-color="#122719"/><stop offset="1" stop-color="#050907"/></radialGradient></defs>
+  <rect width="192" height="192" fill="url(#b)"/>
+  <rect x="29" y="29" width="134" height="134" rx="34" fill="#080d0a" stroke="#324039" stroke-width="2"/>
+  <path d="M48 98c15 0 15-38 31-38s16 72 33 72 16-38 32-38" fill="none" stroke="#b7f774" stroke-width="9" stroke-linecap="round"/>
+  <circle cx="48" cy="98" r="5" fill="#72ff93"/><circle cx="144" cy="94" r="5" fill="#72ff93"/>
+</svg>

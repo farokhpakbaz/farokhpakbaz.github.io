@@ -1,29 +1,62 @@
 {
   "id": "/matrix-immersive",
-  "name": "Farokh — Matrix Immersive",
-  "short_name": "Matrix",
-  "description": "A customizable, fullscreen Matrix digital-rain experience.",
+  "name": "Farokh — Systems & Signals",
+  "short_name": "Farokh",
+  "description": "A systems engineering portfolio with Matrix Immersive, Focus Radio, and a local Frequency Lab.",
   "lang": "en",
   "dir": "ltr",
-  "start_url": "/?matrix=immersive&app=matrix",
+  "start_url": "/?app=workspace",
   "scope": "/",
-  "display": "fullscreen",
+  "display": "standalone",
   "orientation": "any",
-  "background_color": "#020503",
-  "theme_color": "#020503",
+  "background_color": "#080b09",
+  "theme_color": "#080b09",
   "prefer_related_applications": false,
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  },
+  "categories": ["developer", "music", "productivity", "personalization"],
   "icons": [
     {
-      "src": "/icons/matrix-app-192.png",
+      "src": "/icons/farokh-app.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/farokh-app-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/icons/matrix-app-512.png",
+      "src": "/icons/farokh-app-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Matrix Immersive",
+      "short_name": "Matrix",
+      "description": "Open the fullscreen digital-rain experience.",
+      "url": "/?matrix=immersive&app=matrix-shortcut",
+      "icons": [{ "src": "/icons/farokh-app-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Focus Radio",
+      "short_name": "Radio",
+      "description": "Open the streaming focus-music player.",
+      "url": "/?focus=open&audio=radio&app=radio",
+      "icons": [{ "src": "/icons/shortcut-radio-96.png", "sizes": "96x96", "type": "image/png" }]
+    },
+    {
+      "name": "Frequency Lab",
+      "short_name": "Frequencies",
+      "description": "Open the local Solfeggio and stereo-beat generator.",
+      "url": "/?focus=open&audio=frequency&app=frequency",
+      "icons": [{ "src": "/icons/shortcut-frequency-96.png", "sizes": "96x96", "type": "image/png" }]
     }
   ]
 }

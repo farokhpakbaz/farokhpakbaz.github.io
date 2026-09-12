@@ -2300,7 +2300,23 @@ a.project-row:hover {
 
 .footer-links {
   display: flex;
+  align-items: center;
+  flex-wrap: wrap;
   gap: 2rem;
+}
+
+.footer-install {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.footer-install:hover,
+.footer-install:focus-visible {
+  color: var(--accent);
 }
 .colophon {
   justify-self: end;

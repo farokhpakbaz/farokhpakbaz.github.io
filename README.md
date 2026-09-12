@@ -32,13 +32,13 @@ substituting a stock image. Controls auto-hide while idle, settings persist
 locally, and reduced-motion visitors start with the live canvas paused. Its MIT
 license and attribution are included in `static/matrix/`.
 
-Chrome visitors can install **Matrix Immersive** as a Progressive Web App from
-the Matrix menu. The installed app launches directly into the fullscreen rain
-experience, keeps the existing tuning preferences, and caches its renderer for
-later launches. Its launch ritual fades through a featured Shakespeare passage
-and a small rotation of sourced Matrix excerpts; visitors can disable the
-sequence or add private, browser-local quotes. An optional microphone spectrum
-visualizes nearby audio locally and remains off until a visitor enables it.
+Chrome visitors can install the site as a standalone **Progressive Web App**
+from the Matrix menu. The app provides direct shortcuts to Matrix Immersive,
+Focus Radio, and Frequency Lab. Its site shell, local frequency generator, core
+pages, and Matrix renderer are cached for offline use; streamed radio episodes
+still require a network connection. Matrix settings, audio choices, and playback
+preferences remain browser-local. The Matrix launch ritual and optional local
+microphone spectrum continue to work from the dedicated Matrix shortcut.
 
 ## Run locally
 
@@ -78,7 +78,7 @@ publishes it automatically; generated HTML should not be edited or committed.
 - Visual design: `assets/css/main.css`
 - Focus-player fallback data: `data/focus_episodes.json`
 - Matrix runtime and fallback: `static/matrix/`
-- Matrix PWA manifest and offline worker: `static/matrix-app.webmanifest`, `static/sw.js`
+- Site PWA manifest, icons, and offline worker: `static/matrix-app.webmanifest`, `static/icons/`, `static/sw.js`
 
 Create a production build with `hugo --gc --minify --cleanDestinationDir`. The
 generated site is written to `public/`.

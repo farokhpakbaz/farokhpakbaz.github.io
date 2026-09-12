@@ -44,8 +44,8 @@
   const matrixUI = document.querySelector("[data-matrix-ui]");
   const matrixStatus = document.querySelector("[data-matrix-status]");
   const matrixSettingsPanel = document.querySelector("[data-matrix-settings]");
-  const matrixInstallButtons = [
-    ...document.querySelectorAll("[data-matrix-install]"),
+  const appInstallButtons = [
+    ...document.querySelectorAll("[data-app-install]"),
   ];
   const matrixIntro = document.querySelector("[data-matrix-intro]");
   const matrixIntroQuote = document.querySelector("[data-matrix-intro-quote]");
@@ -91,7 +91,7 @@
   let matrixResizeTimer;
   let matrixKeyboardNavigation = false;
   let matrixLastFocus;
-  let matrixInstallPrompt;
+  let appInstallPrompt;
   let matrixIntroTimer;
   let matrixIntroHideTimer;
   let matrixAudioStream;
@@ -100,13 +100,13 @@
   let matrixAudioData;
   let matrixAudioFrame;
 
-  const matrixAppDisplay = ["fullscreen", "standalone", "minimal-ui"].some(
+  const appDisplayMode = ["fullscreen", "standalone", "minimal-ui"].some(
     (mode) => window.matchMedia(`(display-mode: ${mode})`).matches,
   );
 
-  const syncMatrixInstallButtons = () => {
-    matrixInstallButtons.forEach((button) => {
-      button.hidden = matrixAppDisplay || !matrixInstallPrompt;
+  const syncAppInstallButtons = () => {
+    appInstallButtons.forEach((button) => {
+      button.hidden = appDisplayMode || !appInstallPrompt;
     });
   };
 
@@ -378,6 +378,8 @@
       return { ...matrixDefaults };
     }
   })();
+  // Microphone visualization always requires a fresh opt-in after navigation.
+  matrixSettings.audioReactive = false;
 
   const matrixControl = (name) =>
     matrixSettingsPanel?.querySelector(`[data-matrix-setting="${name}"]`);
@@ -886,27 +888,27 @@
 
   window.addEventListener("beforeinstallprompt", (event) => {
     event.preventDefault();
-    matrixInstallPrompt = event;
-    syncMatrixInstallButtons();
+    appInstallPrompt = event;
+    syncAppInstallButtons();
   });
 
   window.addEventListener("appinstalled", () => {
-    matrixInstallPrompt = undefined;
-    syncMatrixInstallButtons();
-    setMatrixStatus("Matrix Immersive installed");
+    appInstallPrompt = undefined;
+    syncAppInstallButtons();
+    setMatrixStatus("site app installed · shortcuts ready");
   });
 
-  matrixInstallButtons.forEach((button) =>
+  appInstallButtons.forEach((button) =>
     button.addEventListener("click", async () => {
-      if (!matrixInstallPrompt) return;
-      setMatrixModeMenu(false);
-      await matrixInstallPrompt.prompt();
-      const { outcome } = await matrixInstallPrompt.userChoice;
-      matrixInstallPrompt = undefined;
-      syncMatrixInstallButtons();
+      if (!appInstallPrompt) return;
+      if (button.closest("[data-matrix-mode-menu]")) setMatrixModeMenu(false);
+      await appInstallPrompt.prompt();
+      const { outcome } = await appInstallPrompt.userChoice;
+      appInstallPrompt = undefined;
+      syncAppInstallButtons();
       setMatrixStatus(
         outcome === "accepted"
-          ? "install accepted · launching from Chrome apps"
+          ? "site app installed · Matrix and audio shortcuts ready"
           : "installation cancelled",
       );
     }),
@@ -1019,25 +1021,31 @@
   };
 
   setTheme(storedTheme || preferredTheme);
-  const matrixRequested = new URLSearchParams(window.location.search).get(
-    "matrix",
-  );
+  const matrixLaunchParameters = new URLSearchParams(window.location.search);
+  const matrixRequested = matrixLaunchParameters.get("matrix");
+  const matrixAppRequest = matrixLaunchParameters.get("app");
+  const legacyInstalledLaunch = appDisplayMode && matrixAppRequest === "matrix";
+  const workspaceAppRequested =
+    matrixAppRequest === "workspace" || legacyInstalledLaunch;
   const matrixAppRequested =
-    new URLSearchParams(window.location.search).get("app") === "matrix";
+    matrixAppRequest === "matrix-shortcut" ||
+    (!appDisplayMode && matrixAppRequest === "matrix");
   const storedMatrixMode = localStorage.getItem("matrix-mode");
   setMatrixMode(
-    matrixAppDisplay || matrixAppRequested
-      ? "immersive"
-      : matrixRequested === "ambient"
-        ? "ambient"
-        : matrixRequested !== null
-          ? "immersive"
-          : storedMatrixMode === "on"
+    workspaceAppRequested
+      ? "off"
+      : matrixAppRequested
+        ? "immersive"
+        : matrixRequested === "ambient"
+          ? "ambient"
+          : matrixRequested !== null
             ? "immersive"
-            : storedMatrixMode,
+            : storedMatrixMode === "on"
+              ? "immersive"
+              : storedMatrixMode,
     false,
   );
-  if (matrixAppDisplay || matrixAppRequested) {
+  if (matrixAppRequested) {
     window.setTimeout(showMatrixIntro, reducedMotion.matches ? 20 : 420);
   }
 
@@ -1348,12 +1356,12 @@
     if (event.key === "Escape") {
       event.preventDefault();
       if (!matrixSettingsPanel.hidden) setMatrixSettingsOpen(false);
-      else if (!(matrixAppDisplay || matrixAppRequested)) setMatrixMode("off");
+      else setMatrixMode("off");
       return;
     }
     if (!isFormControl && event.key.toLowerCase() === "m") {
       event.preventDefault();
-      if (!(matrixAppDisplay || matrixAppRequested)) setMatrixMode("off");
+      setMatrixMode("off");
       return;
     }
     if (!isFormControl && event.key.toLowerCase() === "s") {
@@ -2317,15 +2325,24 @@
       navigator.mediaSession.setActionHandler("stop", stopAndClosePlayer);
     }
 
+    const launchParameters = new URLSearchParams(window.location.search);
+    const audioRequest = launchParameters.get("audio");
+    const appRequest = launchParameters.get("app");
+    const workspaceAppLaunch =
+      appRequest === "workspace" || (appDisplayMode && appRequest === "matrix");
+    const matrixShortcutLaunch = appRequest === "matrix-shortcut";
+    const explicitAudioLaunch = ["radio", "frequency"].includes(audioRequest);
+    if (explicitAudioLaunch) playerMode = audioRequest;
     syncModeUI();
     setPlayingUI(false);
     playerToggle.setAttribute("title", "Open focus audio");
-    const focusRequest = new URLSearchParams(window.location.search).get(
-      "focus",
-    );
+    const focusRequest = launchParameters.get("focus");
     const focusRequested = focusRequest !== null;
     const shouldRestore =
       restoredSession &&
+      !workspaceAppLaunch &&
+      !matrixShortcutLaunch &&
+      !explicitAudioLaunch &&
       ["expanded", "minimized", "hidden"].includes(restoredSession.view) &&
       (playerMode === "frequency" || episodes[restoredSession.episodeIndex]);
 
@@ -2354,7 +2371,7 @@
   if (serviceWorkerURL && "serviceWorker" in navigator) {
     window.addEventListener("load", () => {
       navigator.serviceWorker.register(serviceWorkerURL).catch(() => {
-        // Matrix still works online when private browsing blocks registration.
+        // Core features still work online when private browsing blocks registration.
       });
     });
   }

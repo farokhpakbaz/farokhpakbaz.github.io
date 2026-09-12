@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" role="img" aria-label="Focus Radio">
+  <defs><radialGradient id="b" cx="50%" cy="42%" r="72%"><stop offset="0" stop-color="#122719"/><stop offset="1" stop-color="#050907"/></radialGradient></defs>
+  <rect width="192" height="192" fill="url(#b)"/>
+  <rect x="29" y="29" width="134" height="134" rx="34" fill="#080d0a" stroke="#324039" stroke-width="2"/>
+  <path d="m71 62 56 34-56 34Z" fill="#b7f774"/>
+  <g fill="#72ff93" opacity=".72"><rect x="123" y="64" width="5" height="18" rx="2.5"/><rect x="133" y="57" width="5" height="32" rx="2.5"/><rect x="143" y="67" width="5" height="12" rx="2.5"/></g>
+</svg>

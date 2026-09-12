@@ -14,9 +14,12 @@
   <link rel="canonical" href="{{ .Permalink }}">
   <link rel="icon" href="{{ "favicon.svg" | relURL }}" type="image/svg+xml">
   <link rel="manifest" href="{{ "matrix-app.webmanifest" | relURL }}">
-  <link rel="apple-touch-icon" href="{{ "icons/matrix-app-192.png" | relURL }}">
-  <meta name="application-name" content="Matrix Immersive">
+  <link rel="apple-touch-icon" href="{{ "icons/farokh-app-192.png" | relURL }}">
+  <meta name="application-name" content="Farokh — Systems & Signals">
   <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Farokh">
   <script>
     (() => {
       try {
@@ -290,7 +293,7 @@
           <div class="matrix-settings__group-body">
         <div class="matrix-switches">
           <label class="matrix-switch matrix-switch--featured">
-            <span><strong>Launch quotes</strong><small>Fade a quote in and out when the Matrix app starts.</small></span>
+            <span><strong>Launch quotes</strong><small>Fade a quote in and out when Matrix Immersive opens.</small></span>
             <input type="checkbox" data-matrix-setting="quotesEnabled" checked>
           </label>
           <label class="matrix-switch">
@@ -392,10 +395,10 @@
               <strong>Immersive</strong>
               <small>Only the digital rain</small>
             </button>
-            <button class="matrix-mode-menu__install" type="button" role="menuitem" data-matrix-install hidden>
+            <button class="matrix-mode-menu__install" type="button" role="menuitem" data-app-install hidden>
               <span aria-hidden="true">↓</span>
-              <strong>Install Matrix app</strong>
-              <small>Launch Immersive from Chrome</small>
+              <strong>Install site app</strong>
+              <small>Matrix, radio & frequency shortcuts</small>
             </button>
             <button class="matrix-mode-menu__off" type="button" role="menuitem" data-matrix-mode-choice="off">
               disconnect signal

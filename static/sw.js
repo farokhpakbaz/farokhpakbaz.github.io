@@ -1,11 +1,19 @@
-const CACHE_PREFIX = "farokh-matrix-";
-const CACHE_NAME = `${CACHE_PREFIX}v3`;
+const CACHE_PREFIX = "farokh-app-";
+const LEGACY_CACHE_PREFIX = "farokh-matrix-";
+// Increment this version whenever cached shell or renderer behavior changes.
+const CACHE_NAME = `${CACHE_PREFIX}v1`;
 
-const MATRIX_ASSETS = [
+const CORE_ASSETS = [
+  "/",
+  "/about/",
+  "/notes/",
   "/matrix-app.webmanifest",
   "/favicon.svg",
-  "/icons/matrix-app-192.png",
-  "/icons/matrix-app-512.png",
+  "/icons/farokh-app.svg",
+  "/icons/farokh-app-192.png",
+  "/icons/farokh-app-512.png",
+  "/icons/shortcut-radio-96.png",
+  "/icons/shortcut-frequency-96.png",
   "/matrix/",
   "/matrix/index.html",
   "/matrix/fallback.webp",
@@ -42,6 +50,15 @@ const MATRIX_ASSETS = [
   "/matrix/shaders/glsl/mirrorPass.frag.glsl",
 ];
 
+const cacheRequiredResponse = async (cache, request) => {
+  const response = await fetch(request, { cache: "reload" });
+  if (!response.ok) {
+    throw new Error(`Unable to cache required app asset: ${request}`);
+  }
+  await cache.put(request, response.clone());
+  return response;
+};
+
 const cacheResponse = async (cache, request) => {
   try {
     const response = await fetch(request, { cache: "reload" });
@@ -56,22 +73,20 @@ self.addEventListener("install", (event) => {
   event.waitUntil(
     (async () => {
       const cache = await caches.open(CACHE_NAME);
-      await Promise.allSettled(
-        MATRIX_ASSETS.map((asset) => cacheResponse(cache, asset)),
+      const coreResponses = await Promise.all(
+        CORE_ASSETS.map((asset) => cacheRequiredResponse(cache, asset)),
       );
 
-      const home = await cacheResponse(cache, "/");
+      const home = coreResponses[0];
       if (home?.ok) {
         const html = await home.text();
-        const shellAssets = [
-          ...html.matchAll(/(?:href|src)=["']([^"']+)["']/g),
-        ]
+        const shellAssets = [...html.matchAll(/(?:href|src)=["']([^"']+)["']/g)]
           .map((match) => new URL(match[1], self.location.origin))
           .filter((url) => url.origin === self.location.origin)
           .map((url) => `${url.pathname}${url.search}`);
-        await Promise.allSettled(
+        await Promise.all(
           [...new Set(shellAssets)].map((asset) =>
-            cacheResponse(cache, asset),
+            cacheRequiredResponse(cache, asset),
           ),
         );
       }
@@ -87,7 +102,12 @@ self.addEventListener("activate", (event) => {
       const keys = await caches.keys();
       await Promise.all(
         keys
-          .filter((key) => key.startsWith(CACHE_PREFIX) && key !== CACHE_NAME)
+          .filter(
+            (key) =>
+              (key.startsWith(CACHE_PREFIX) ||
+                key.startsWith(LEGACY_CACHE_PREFIX)) &&
+              key !== CACHE_NAME,
+          )
           .map((key) => caches.delete(key)),
       );
       await self.clients.claim();
@@ -111,7 +131,16 @@ self.addEventListener("fetch", (event) => {
           }
           return response;
         } catch {
-          return (await caches.match(request)) || (await caches.match("/"));
+          const cached = await caches.match(request);
+          if (cached) return cached;
+          if (
+            url.pathname === "/matrix/" ||
+            url.pathname === "/matrix/index.html"
+          ) {
+            const matrixShell = await caches.match("/matrix/");
+            if (matrixShell) return matrixShell;
+          }
+          return caches.match("/");
         }
       })(),
     );

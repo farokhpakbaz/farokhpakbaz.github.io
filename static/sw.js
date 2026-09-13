@@ -1,12 +1,10 @@
 const CACHE_PREFIX = "farokh-app-";
 const LEGACY_CACHE_PREFIX = "farokh-matrix-";
 // Increment this version whenever cached shell or renderer behavior changes.
-const CACHE_NAME = `${CACHE_PREFIX}v1`;
+const CACHE_NAME = `${CACHE_PREFIX}v2`;
 
 const CORE_ASSETS = [
-  "/",
-  "/about/",
-  "/notes/",
+  "/app/",
   "/matrix-app.webmanifest",
   "/favicon.svg",
   "/icons/farokh-app.svg",
@@ -121,6 +119,12 @@ self.addEventListener("fetch", (event) => {
   if (request.method !== "GET" || url.origin !== self.location.origin) return;
 
   if (request.mode === "navigate") {
+    const isAppNavigation =
+      url.pathname === "/app" || url.pathname.startsWith("/app/");
+    const isMatrixNavigation =
+      url.pathname === "/matrix" || url.pathname.startsWith("/matrix/");
+    if (!isAppNavigation && !isMatrixNavigation) return;
+
     event.respondWith(
       (async () => {
         try {
@@ -140,7 +144,7 @@ self.addEventListener("fetch", (event) => {
             const matrixShell = await caches.match("/matrix/");
             if (matrixShell) return matrixShell;
           }
-          return caches.match("/");
+          return caches.match("/app/");
         }
       })(),
     );

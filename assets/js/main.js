@@ -78,7 +78,7 @@
   ];
   const matrixSettingsToggle = matrixSettingsToggles[0];
   const matrixFullscreen = document.querySelector("[data-matrix-fullscreen]");
-  const siteShell = document.querySelector(".site-shell");
+  const siteShell = document.querySelector("[data-app-shell], .site-shell");
   const focusPlayerPanel = document.querySelector("[data-player]");
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   const matrixStorageKey = "matrix-settings-v1";
@@ -895,7 +895,7 @@
   window.addEventListener("appinstalled", () => {
     appInstallPrompt = undefined;
     syncAppInstallButtons();
-    setMatrixStatus("site app installed · shortcuts ready");
+    setMatrixStatus("Signals app installed · shortcuts ready");
   });
 
   appInstallButtons.forEach((button) =>
@@ -908,7 +908,7 @@
       syncAppInstallButtons();
       setMatrixStatus(
         outcome === "accepted"
-          ? "site app installed · Matrix and audio shortcuts ready"
+          ? "Signals app installed · Matrix and audio shortcuts ready"
           : "installation cancelled",
       );
     }),
@@ -2112,6 +2112,15 @@
       button.addEventListener("click", () =>
         setPlayerMode(button.dataset.playerModeChoice),
       );
+    });
+    document.querySelectorAll("[data-app-audio]").forEach((button) => {
+      button.addEventListener("click", () => {
+        setPlayerMode(button.dataset.appAudio);
+        openPlayer();
+        player
+          .querySelector("[data-player-play]")
+          ?.focus({ preventScroll: true });
+      });
     });
     toneSelect.addEventListener("change", () => {
       toneKey = toneSelect.value;

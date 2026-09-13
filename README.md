@@ -32,13 +32,13 @@ substituting a stock image. Controls auto-hide while idle, settings persist
 locally, and reduced-motion visitors start with the live canvas paused. Its MIT
 license and attribution are included in `static/matrix/`.
 
-Chrome visitors can install the site as a standalone **Progressive Web App**
-from the Matrix menu. The app provides direct shortcuts to Matrix Immersive,
-Focus Radio, and Frequency Lab. Its site shell, local frequency generator, core
-pages, and Matrix renderer are cached for offline use; streamed radio episodes
-still require a network connection. Matrix settings, audio choices, and playback
-preferences remain browser-local. The Matrix launch ritual and optional local
-microphone spectrum continue to work from the dedicated Matrix shortcut.
+Chrome visitors can install **Systems & Signals** as a standalone **Progressive
+Web App**. The installed app opens a dedicated `/app/` workspace containing only
+Matrix, Focus Radio, and Frequency Lab—portfolio pages and notes are not shown in
+or cached by the app. Matrix and the local frequency generator are available
+offline; streamed radio episodes still require a network connection. Matrix
+settings, audio choices, and playback preferences remain browser-local. Direct
+app shortcuts open Matrix Immersive, Focus Radio, or Frequency Lab.
 
 ## Run locally
 
@@ -78,7 +78,8 @@ publishes it automatically; generated HTML should not be edited or committed.
 - Visual design: `assets/css/main.css`
 - Focus-player fallback data: `data/focus_episodes.json`
 - Matrix runtime and fallback: `static/matrix/`
-- Site PWA manifest, icons, and offline worker: `static/matrix-app.webmanifest`, `static/icons/`, `static/sw.js`
+- PWA workspace: `content/app.md`, `layouts/_default/app.html`
+- PWA manifest, icons, and offline worker: `static/matrix-app.webmanifest`, `static/icons/`, `static/sw.js`
 
 Create a production build with `hugo --gc --minify --cleanDestinationDir`. The
 generated site is written to `public/`.

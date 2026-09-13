@@ -1,0 +1,82 @@
+{{ define "main" }}
+<section class="app-workspace" aria-labelledby="app-title">
+  <div class="app-workspace__intro">
+    <div>
+      <p class="app-kicker"><span aria-hidden="true"></span>workspace ready</p>
+      <h1 id="app-title">Choose your<br><em>signal.</em></h1>
+    </div>
+    <p class="app-workspace__lede">Three purpose-built modes for visual atmosphere, streaming focus, and locally generated sound. Nothing else.</p>
+  </div>
+
+  <dl class="app-runtime" aria-label="Application capabilities">
+    <div><dt>workspace</dt><dd>3 modules</dd></div>
+    <div><dt>frequency audio</dt><dd>on-device</dd></div>
+    <div><dt>settings</dt><dd>browser-local</dd></div>
+    <div><dt>matrix + lab</dt><dd>offline ready</dd></div>
+  </dl>
+
+  <div class="app-tool-grid">
+    <article class="app-tool app-tool--matrix">
+      <div class="app-tool__topline">
+        <span>01 / visual system</span>
+        <span class="app-tool__state"><i aria-hidden="true"></i> local renderer</span>
+      </div>
+      <div class="app-tool__visual app-tool__visual--matrix" aria-hidden="true">
+        <span>ﾊ ﾐ ﾋｰ ｳ ｼ ﾅ ﾓ</span>
+        <span>ｾ ﾈ ﾏ ﾘ 01 ﾎ ﾗ</span>
+        <span>ｷ ﾂ ｻ ﾜ ﾇ ﾌ ﾒ</span>
+        <span>ｱ ﾖ ﾕ ﾀ ﾚ ﾛ ﾝ</span>
+        <strong>THE MATRIX</strong>
+      </div>
+      <div class="app-tool__copy">
+        <p class="app-tool__index">VIS / 01</p>
+        <h2>Matrix</h2>
+        <p>Enter full-screen digital rain or keep a quiet signal moving behind this workspace.</p>
+      </div>
+      <div class="app-tool__actions">
+        <button class="app-action app-action--primary" type="button" data-matrix-mode-choice="immersive">enter immersive <span aria-hidden="true">↗</span></button>
+        <button class="app-action" type="button" data-matrix-mode-choice="ambient">start ambient <span aria-hidden="true">~</span></button>
+      </div>
+    </article>
+
+    <article class="app-tool app-tool--radio">
+      <div class="app-tool__topline">
+        <span>02 / streaming audio</span>
+        <span class="app-tool__state"><i aria-hidden="true"></i> network</span>
+      </div>
+      <div class="app-tool__visual app-tool__visual--radio" aria-hidden="true">
+        {{ range seq 24 }}<i></i>{{ end }}
+        <span>LIVE</span>
+      </div>
+      <div class="app-tool__copy">
+        <p class="app-tool__index">AUD / 02</p>
+        <h2>Focus Radio</h2>
+        <p>Long-form electronic mixes selected for uninterrupted concentration and background flow.</p>
+      </div>
+      <button class="app-action app-action--primary" type="button" data-app-audio="radio">open radio <span aria-hidden="true">▶</span></button>
+    </article>
+
+    <article class="app-tool app-tool--frequency">
+      <div class="app-tool__topline">
+        <span>03 / generated audio</span>
+        <span class="app-tool__state"><i aria-hidden="true"></i> offline</span>
+      </div>
+      <div class="app-tool__visual app-tool__visual--frequency" aria-hidden="true">
+        <i></i><i></i><i></i>
+        <strong>528<small>HZ</small></strong>
+      </div>
+      <div class="app-tool__copy">
+        <p class="app-tool__index">AUD / 03</p>
+        <h2>Frequency Lab</h2>
+        <p>Combine nine Solfeggio tones with focus moods and sound textures, generated entirely on-device.</p>
+      </div>
+      <button class="app-action app-action--primary" type="button" data-app-audio="frequency">open lab <span aria-hidden="true">→</span></button>
+    </article>
+  </div>
+
+  <footer class="app-workspace__footer">
+    <p><span aria-hidden="true">●</span> audio is opt-in and preferences stay on this device</p>
+    <p>radio streams require a connection · Matrix and Frequency Lab work offline</p>
+  </footer>
+</section>
+{{ end }}

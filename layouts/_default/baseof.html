@@ -1,25 +1,26 @@
+{{- $isApp := eq .Layout "app" -}}
 <!doctype html>
-<html lang="{{ site.Language.Locale }}" data-theme="dark">
+<html lang="{{ site.Language.Locale }}" data-theme="dark"{{ if $isApp }} data-app="true"{{ end }}>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0a0c0b">
   <meta name="description" content="{{ with .Description }}{{ . }}{{ else }}{{ site.Params.description }}{{ end }}">
-  <meta property="og:title" content="{{ if .IsHome }}{{ site.Title }}{{ else }}{{ .Title }} — {{ site.Params.name }}{{ end }}">
+  <meta property="og:title" content="{{ if $isApp }}Systems & Signals{{ else if .IsHome }}{{ site.Title }}{{ else }}{{ .Title }} — {{ site.Params.name }}{{ end }}">
   <meta property="og:description" content="{{ with .Description }}{{ . }}{{ else }}{{ site.Params.description }}{{ end }}">
-  <meta property="og:type" content="{{ if .IsPage }}article{{ else }}website{{ end }}">
+  <meta property="og:type" content="{{ if $isApp }}website{{ else if .IsPage }}article{{ else }}website{{ end }}">
   <meta property="og:url" content="{{ .Permalink }}">
-  <meta property="og:site_name" content="{{ site.Params.name }} — {{ site.Params.role }}">
-  <title>{{ if .IsHome }}{{ site.Title }}{{ else }}{{ .Title }} — {{ site.Params.name }}{{ end }}</title>
+  <meta property="og:site_name" content="{{ if $isApp }}Systems & Signals{{ else }}{{ site.Params.name }} — {{ site.Params.role }}{{ end }}">
+  <title>{{ if $isApp }}Systems & Signals{{ else if .IsHome }}{{ site.Title }}{{ else }}{{ .Title }} — {{ site.Params.name }}{{ end }}</title>
   <link rel="canonical" href="{{ .Permalink }}">
   <link rel="icon" href="{{ "favicon.svg" | relURL }}" type="image/svg+xml">
   <link rel="manifest" href="{{ "matrix-app.webmanifest" | relURL }}">
   <link rel="apple-touch-icon" href="{{ "icons/farokh-app-192.png" | relURL }}">
-  <meta name="application-name" content="Farokh — Systems & Signals">
+  <meta name="application-name" content="Systems & Signals">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Farokh">
+  <meta name="apple-mobile-web-app-title" content="Signals">
   <script>
     (() => {
       try {
@@ -49,7 +50,7 @@
   {{ $styles := resources.Get "css/main.css" | minify | fingerprint }}
   <link rel="stylesheet" href="{{ $styles.RelPermalink }}" integrity="{{ $styles.Data.Integrity }}">
 </head>
-<body>
+<body{{ if $isApp }} class="app-body"{{ end }}>
   <a class="skip-link" href="#main">Skip to content</a>
   <div
     class="matrix-layer"
@@ -355,6 +356,58 @@
         </div>
       </form>
   </section>
+  {{ if $isApp }}
+  <div class="app-shell" data-app-shell>
+</div>    <header class="app-header" data-site-header aria-label="Application controls">
+      <div class="app-brand" aria-label="Systems and Signals">
+        <span class="app-brand__mark" aria-hidden="true">S/S</span>
+        <span><strong></strong>systems &amp; signals</strong><small>focus</small> workspace</small></span>
+      </div>
+      <p class="app-header__status"><i aria-hidden="true"></i><span></span>local session</span></p>
+      <div class="app-header__actions">
+        <div class="matrix-launcher" data-matrix-launcher></div>
+          <button
+            class="matrix-toggle"
+            type="button"
+            data-matrix-toggle
+            data-matrix-src="{{ "matrix/" | relURL }}"
+            aria-pressed="false"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            aria-controls="matrix-mode-menu"
+            title="Choose Matrix experience"
+          >
+            <span class="matrix-icon" aria-hidden="true">01</span>
+            <span></span>matrix</span>
+            <span class="matrix-toggle__chevron" aria-hidden="true">⌄</span>
+          </button>
+          <div class="matrix-mode-menu" id="matrix-mode-menu" data-matrix-mode-menu role="menu" hidden></div>
+            <p></p>choose a signal</p>
+            <button type="button" role="menuitem" data-matrix-mode-choice="ambient">
+              <span aria-hidden="true">BG</span><strong>Ambient</strong></strong><small></small>Rain behind the workspace</small>
+            </button>
+            <button type="button" role="menuitem" data-matrix-mode-choice="immersive">
+              <span aria-hidden="true">∞</span><strong>Imm</strong>ersive</strong><small>Only</small> the digital rain</small>
+            </button>
+            <button class="matrix-mode-menu__off" type="button" role="menuitem" data-matrix-mode-choice="off">disconnect signal</button>
+          </div>
+        </div>
+        <button class="focus-toggle" type="button" data-player-toggle aria-controls="focus-player" aria-expanded="false">
+          <span class="mini-eq" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span>audio</span></span>
+        </button>
+        <button class="theme-toggle" type="button" aria-label="Switch color theme" title="Switch color theme">
+          <span class="theme-icon" aria-hidden="true">◐</span>
+          <span class="theme-label" data-theme-label>theme</</span>span>
+        </button>
+        <button class="app-install" type="button" data-app-install hidden></button>install <span aria-hidden="true">↓</span></button>
+      </div>
+    </header>
+    <main id="main" tabindex="-1">
+      {{ block "main" . }}{{ end }}
+    </main>
+  </div>
+  {{ else }}
   <div class="site-shell">
     <header class="site-header" data-site-header aria-label="Primary navigation">
       <a class="wordmark" href="{{ site.Home.RelPermalink }}" aria-label="{{ site.Params.name }}, home">
@@ -397,8 +450,8 @@
             </button>
             <button class="matrix-mode-menu__install" type="button" role="menuitem" data-app-install hidden>
               <span aria-hidden="true">↓</span>
-              <strong>Install site app</strong>
-              <small>Matrix, radio & frequency shortcuts</small>
+              <strong>Install Signals app</strong>
+              <small>Matrix, radio &amp; frequency only</small>
             </button>
             <button class="matrix-mode-menu__off" type="button" role="menuitem" data-matrix-mode-choice="off">
               disconnect signal
@@ -427,6 +480,7 @@
 
     {{ partial "footer.html" . }}
   </div>
+  {{ end }}
   {{ partial "player.html" . }}
   {{ $frequencyScript := resources.Get "js/frequency-generator.js" | minify | fingerprint }}
   <script

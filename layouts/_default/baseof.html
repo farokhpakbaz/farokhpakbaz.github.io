@@ -358,14 +358,17 @@
   </section>
   {{ if $isApp }}
   <div class="app-shell" data-app-shell>
-</div>    <header class="app-header" data-site-header aria-label="Application controls">
+    <header class="app-header" data-site-header aria-label="Application controls">
       <div class="app-brand" aria-label="Systems and Signals">
         <span class="app-brand__mark" aria-hidden="true">S/S</span>
-        <span><strong></strong>systems &amp; signals</strong><small>focus</small> workspace</small></span>
+        <span>
+          <strong>systems &amp; signals</strong>
+          <small>focus workspace</small>
+        </span>
       </div>
-      <p class="app-header__status"><i aria-hidden="true"></i><span></span>local session</span></p>
+      <p class="app-header__status"><i aria-hidden="true"></i><span>local session</span></p>
       <div class="app-header__actions">
-        <div class="matrix-launcher" data-matrix-launcher></div>
+        <div class="matrix-launcher" data-matrix-launcher>
           <button
             class="matrix-toggle"
             type="button"
@@ -378,29 +381,39 @@
             title="Choose Matrix experience"
           >
             <span class="matrix-icon" aria-hidden="true">01</span>
-            <span></span>matrix</span>
+            <span>matrix</span>
             <span class="matrix-toggle__chevron" aria-hidden="true">⌄</span>
           </button>
-          <div class="matrix-mode-menu" id="matrix-mode-menu" data-matrix-mode-menu role="menu" hidden></div>
-            <p></p>choose a signal</p>
+          <div class="matrix-mode-menu" id="matrix-mode-menu" data-matrix-mode-menu role="menu" hidden>
+            <p>
+              choose a signal
+            </p>
             <button type="button" role="menuitem" data-matrix-mode-choice="ambient">
-              <span aria-hidden="true">BG</span><strong>Ambient</strong></strong><small></small>Rain behind the workspace</small>
+              <span aria-hidden="true">BG</span>
+              <strong>Ambient</strong>
+              <small>
+                Rain behind the workspace
+              </small>
             </button>
             <button type="button" role="menuitem" data-matrix-mode-choice="immersive">
-              <span aria-hidden="true">∞</span><strong>Imm</strong>ersive</strong><small>Only</small> the digital rain</small>
+              <span aria-hidden="true">∞</span>
+              <strong>Immersive</strong>
+              <small>
+                Only the digital rain
+              </small>
             </button>
             <button class="matrix-mode-menu__off" type="button" role="menuitem" data-matrix-mode-choice="off">disconnect signal</button>
           </div>
         </div>
         <button class="focus-toggle" type="button" data-player-toggle aria-controls="focus-player" aria-expanded="false">
           <span class="mini-eq" aria-hidden="true"><i></i><i></i><i></i></span>
-          <span>audio</span></span>
+          <span>audio</span>
         </button>
         <button class="theme-toggle" type="button" aria-label="Switch color theme" title="Switch color theme">
           <span class="theme-icon" aria-hidden="true">◐</span>
-          <span class="theme-label" data-theme-label>theme</</span>span>
+          <span class="theme-label" data-theme-label>theme</span>
         </button>
-        <button class="app-install" type="button" data-app-install hidden></button>install <span aria-hidden="true">↓</span></button>
+        <button class="app-install" type="button" data-app-install hidden>install <span aria-hidden="true">↓</span></button>
       </div>
     </header>
     <main id="main" tabindex="-1">
